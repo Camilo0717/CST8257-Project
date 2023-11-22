@@ -1,16 +1,14 @@
 <?php
 session_start();
 
-// Select active page
-$activeHome = "active";
-$activeCourse = null;
-$activeRegistration = null;
-$activeLog = null;
+include_once("Common/Libraries/functions.php");
+
+// Set active Link
+extract(setActiveLink('home'));
 
 // Check user status
 $isLogged = (isset($_SESSION['UserData']));
-$Message = $isLogged ? 'Log Out' : 'Log In';
-$Link = $isLogged ? 'LogOut.php' : 'LogIn.php';
+[$Message, $Link] = checkLogStatus($isLogged);
 
 include("./Common/PageElements/header.php");
 ?>
@@ -20,7 +18,7 @@ include("./Common/PageElements/header.php");
 if (isset($_SESSION['UserData'])){
     $name = $_SESSION['UserData']['Name'];
     echo <<<DOC
-    <h1 class='text-center mb-4'>Welcome back $name</h1>
+    <h1 class='text-center mb-4'>Welcome back to Algonquin Social Media Site, $name</h1>
     <div class='row'>
         <div class='col offset-1'>
             <h5 style='line-height: 1.5'>You are already logged in. If you wish to log out proceed to <a href="LogOut.php">Log Out.</a></h5>
@@ -31,7 +29,7 @@ if (isset($_SESSION['UserData'])){
     DOC;
 } else {
     echo <<<DOC
-    <h1 class='text-center mb-4'>Welcome to Online Registration </h1>
+    <h1 class='text-center mb-4'>Welcome to Algonquin Social Media Site </h1>
     <div class='row'>
         <div class='col offset-1'>
             <h5 style='line-height: 1.5'>If you have never used this application before, you must <a href="NewUser.php">Sign In</a> first.</h5>
@@ -48,5 +46,5 @@ if (isset($_SESSION['UserData'])){
 }
 ?>       
 <?php
-//include("./common/img/footer.php"); 
+include("./Common/PageElements/footer.php"); 
 ?>
