@@ -54,3 +54,20 @@ function checkLogStatus($isLogged){
     }
     return $result;
 }
+
+// executeQuery: receives a Query string and an array of variable
+// assignment to execute the Query
+function executeQuery($query, $arguments){    
+    // Database Connection
+    $dbConnection = parse_ini_file("./Common/Project.ini");
+    extract($dbConnection);
+    $myPdo = new PDO($dsn, $user, $password);
+    
+    // Prepare query
+    $preparedQuery = $myPdo -> prepare($query);
+    
+    // Execute query
+    $preparedQuery -> execute($arguments);
+    
+    return $preparedQuery;
+}
