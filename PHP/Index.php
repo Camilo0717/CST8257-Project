@@ -16,7 +16,7 @@ include("./Common/PageElements/header.php");
 <?php 
 // If the user is logged in display custom message
 if (isset($_SESSION['UserData'])){
-    $name = $_SESSION['UserData']['Name'];
+    $name = $_SESSION['UserData']['userName'];
     echo <<<DOC
     <h1 class='text-center mb-4'>Welcome back to Algonquin Social Media Site, $name</h1>
     <div class='row'>

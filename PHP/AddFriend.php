@@ -4,6 +4,11 @@ session_start();
 // simulate log in
 // extract user data
 // Retrieve user data
+
+// Common function: If the user is not logged in and tries to access any private page
+// Redirect to log in
+// After login, redirect to the page he/she was trying to access
+
 $userId = 'id1';
 $userName = 'user1';
 
@@ -124,4 +129,6 @@ include("./Common/PageElements/header.php");
     </div>
     </form>
 </div>
-
+<?php
+include("./Common/PageElements/footer.php"); 
+?>

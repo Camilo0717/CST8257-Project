@@ -71,3 +71,13 @@ function executeQuery($query, $arguments){
     
     return $preparedQuery;
 }
+
+function initSessionVar(&$variable){
+    if (isset($_SESSION[$variable])){
+        $variable = $_SESSION[$variable];
+    } else {
+        $variable = '';
+    }
+    
+    return $variable;
+}
