@@ -2,60 +2,49 @@
     session_start();
     extract($_POST);
     
-    // Include classes
-    
-    require_once('./Common/Course.php');
-    require_once('./Common/Student.php');
-    
-    // Select active page
-    $activeHome = null;
-    $activeCourse = null;
-    $activeRegistration = null;
-    $activeLog = "active";
+    // include libraries
+    foreach (glob("Common/Libraries/*.php") as $filename)
+    {
+        include $filename;
+    }
+
+    // Set active Link
+    extract(setActiveLink('Log'));
     
     // Check user status
-    $isLogged = (isset($_SESSION['UserData']));
-    $Message = $isLogged ? 'Log Out' : 'Log In';
-    $Link = $isLogged ? 'LogOut.php' : 'LogIn.php';
+    $isLogged = (isset($_SESSION['serializedUser']));
+    [$Message, $Link] = checkLogStatus($isLogged);
     
-    // If the user is already logged in, redirect to course Selection
+    // If the user is already logged in, redirect to Home page
     if ($isLogged){
-        header("Location: CourseSelection.php");
+        header("Location: Index.php");
         exit();
     }
+
+    // Initialize error messages
+    $errorArray = [$userIdErrorMsg = '', $pswdErrorMsg = '',
+        $dataErrorMsg = ''];
     
-    // Initialize error messages as empty strings
-    $studentIdErrorMsg = ''; $pswdErrorMsg = '';
-    $dataErrorMsg = '';
-    
-    // Include validation functions
-    include 'functions.php';
-    
-    // Retrieve or initialize variables
-    if (isset($_SESSION["studentId"])){
-        $studentId = $_SESSION["studentId"];
-    } else {
-        $studentId = '';
-    }
-    
-    if (isset($_SESSION["pswd"])){
-        $pswd = $_SESSION["pswd"];
-    } else {
-        $pswd = '';
+    // Initialize user data
+    $userData = [$userId = '', $pswd = ''];
+
+    // Extract user data from Session
+    foreach($userData as $variable){
+        initSessionVar($variable);
     }
     
     // On btnClear click
-    if (isset($btnClear)){
-        // Clear all fields and error messages
-        $studentId = ''; $pswd = '';
-
-        $studentIdErrorMsg = '';$pswdErrorMsg = ''; $dataErrorMsg = '';
-        
-        // Clear relevant session variables
-        $_SESSION["studentId"] = $studentId;
-        $_SESSION["pswd"] = $pswd;
-
-    }
+//    if (isset($btnClear)){
+//        // Clear all fields and error messages
+//        $studentId = ''; $pswd = '';
+//
+//        $studentIdErrorMsg = '';$pswdErrorMsg = ''; $dataErrorMsg = '';
+//        
+//        // Clear relevant session variables
+//        $_SESSION["studentId"] = $studentId;
+//        $_SESSION["pswd"] = $pswd;
+//
+//    }
     
     // On btnNext click
     if (isset($btnSubmit)){
@@ -63,39 +52,30 @@
         extract($_POST);
         
         // Validate data
-        if ($studentId == ''){
-            $studentIdErrorMsg = 'Student ID is required.';
+        if ($userId == ''){
+            $userIdErrorMsg = 'Student ID is required.';
         }
         
         if ($pswd == ''){
             $pswdErrorMsg = 'Password is required.';
         }
         
-        $errorArray = [$studentIdErrorMsg,$pswdErrorMsg];
+        $errorArray = [$userIdErrorMsg,$pswdErrorMsg];
         
         // Save user inputs
-        $_SESSION["studentId"] = $studentId;
+        $_SESSION["userId"] = $userId;
         $_SESSION["pswd"] = $pswd;
 
-        // If there are no errors
+        // If the form is valid
         if (ValidateForm($errorArray)){           
             // Check if the student information is in the DB
-            $dbConnection = parse_ini_file("Lab6.ini");
-            
-            extract($dbConnection);
-            
-            $myPdo = new PDO($dsn, $user, $password);
             $hashedPswd = hash("sha256", $pswd);
             
             // Placeholder statement
-            $sqlStatement = "SELECT StudentId, Name, Phone, Password FROM Student"
-                    . " WHERE StudentId = :studentId AND Password = :hashedPswd";
+            $sqlStatement = "SELECT * FROM user"
+                    . " WHERE UserId = :userId AND Password = :hashedPswd";
             
-            // Prepare statement
-            $prepStatement = $myPdo -> prepare($sqlStatement);
-            
-            // Execute prepared statement
-            $prepStatement -> execute(['studentId'=>$studentId, 'hashedPswd'=>$hashedPswd]);
+            $prepStatement = executeQuery($sqlStatement, ['userId'=>$userId, 'hashedPswd'=>$hashedPswd]);
                        
             if ($prepStatement){
                             $row = $prepStatement->fetch(PDO::FETCH_ASSOC);
@@ -107,10 +87,15 @@
             if($row){
                 // User exists
                 // Save data into session for CourseSelection.php page
-                $_SESSION['UserData'] = $row;
+                $currentUser = new User($row['UserId'], $row['Name']);
                 
-                // Redirect User to CourseSelection.php
-                header("Location: CourseSelection.php");
+                // Save object to session
+                $_SESSION['currentUser'] = $currentUser;
+                $serializedUser = serialize($currentUser);
+                $_SESSION['serializedUser'] = $serializedUser;
+                
+                // Redirect User to *CourseSelection*.php
+                header("Location: Index.php");
             } else {
                 // User does not exist
                 $dataErrorMsg = 'Incorrect studentID and/or Password.';
@@ -118,7 +103,7 @@
 
         }
     }      
-include("./common/img/header.php");
+include("./Common/PageElements/header.php");
 ?>
 <div class="container" style="width:60%; margin-left: 50px;">
     <div class="row">
@@ -137,10 +122,10 @@ include("./common/img/header.php");
     </div>
     
     <div class="row mb-3 mt-3 justify-content-center align-items-center">
-        <div class="col-3 text-start"><label for="studentId" class="form-label">StudentID: </label></div>
-        <div class="col-sm-5"><input type="text" name="studentId" id="studentId" class="form-control" value="<?php echo htmlspecialchars($studentId) ?>"></div>
+        <div class="col-3 text-start"><label for="userId" class="form-label">User ID: </label></div>
+        <div class="col-sm-5"><input type="text" name="userId" id="userId" class="form-control" value="<?php echo htmlspecialchars($userId) ?>"></div>
         <?php
-            echo "<div class='col-4'><span style='color: red;'>$studentIdErrorMsg</span></div>";
+            echo "<div class='col-4'><span style='color: red;'>$userIdErrorMsg</span></div>";
         ?>
     </div>
     
@@ -163,5 +148,5 @@ include("./common/img/header.php");
     </form>
 </div>
 <?php
-include("./common/img/footer.php"); 
+include("./Common/PageElements/footer.php"); 
 ?>

@@ -1,14 +1,6 @@
 <?php
 session_start();
 
-// simulate log in
-// extract user data
-// Retrieve user data
-
-// Common function: If the user is not logged in and tries to access any private page
-// Redirect to log in
-// After login, redirect to the page he/she was trying to access
-
 $userId = 'id1';
 $userName = 'user1';
 
@@ -17,6 +9,21 @@ foreach (glob("Common/Libraries/*.php") as $filename)
 {
     include $filename;
 }
+
+// Common function: If the user is not logged in and tries to access any private page
+// Redirect to log in
+// After login, redirect to the page he/she was trying to access
+
+if (isset($_SESSION['serializedUser'])){
+    $serializedUser = isset($_SESSION['serializedUser']);
+    // Get user object
+    $currentUser = unserialize($serializedUser);
+} else {
+    header("Location: LogIn.php");
+    exit;
+}
+
+echo $currentUser -> getName();
 
 // Set active Link
 extract(setActiveLink('Friends'));

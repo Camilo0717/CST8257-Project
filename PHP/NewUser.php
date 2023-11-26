@@ -12,7 +12,7 @@
     extract(setActiveLink('Log'));
     
     // Check user status
-    $isLogged = (isset($_SESSION['UserData']));
+    $isLogged = (isset($_SESSION['serializedUser']));
     [$Message, $Link] = checkLogStatus($isLogged);
     
     // If the user is already logged in, redirect to Home page
@@ -113,8 +113,8 @@
                 // Redirect User to *.php
                 header("Location: Index.php");
 
+                // Redirect user to previous page
             }
-
         }
     }      
 include("./Common/PageElements/header.php");
