@@ -1,9 +1,6 @@
 <?php
 session_start();
 
-$userId = 'id1';
-$userName = 'user1';
-
 // include libraries
 foreach (glob("Common/Libraries/*.php") as $filename)
 {
@@ -15,7 +12,7 @@ foreach (glob("Common/Libraries/*.php") as $filename)
 // After login, redirect to the page he/she was trying to access
 
 if (isset($_SESSION['serializedUser'])){
-    $serializedUser = isset($_SESSION['serializedUser']);
+    $serializedUser = $_SESSION['serializedUser'];
     // Get user object
     $currentUser = unserialize($serializedUser);
 } else {
