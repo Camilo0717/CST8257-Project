@@ -1,13 +1,28 @@
 <?php
 session_start();
 
-include_once("Common/Libraries/functions.php");
+// include libraries
+foreach (glob("Common/Libraries/*.php") as $filename)
+{
+    include $filename;
+}
+
+// Common function: If the user is not logged in and tries to access any private page
+// Redirect to log in
+// After login, redirect to the page he/she was trying to access
+
+if (isset($_SESSION['serializedUser'])){
+    $serializedUser = $_SESSION['serializedUser'];
+    // Get user object
+    $currentUser = unserialize($serializedUser);
+    $isLogged = true;
+} else {
+    $isLogged = false;
+}
 
 // Set active Link
 extract(setActiveLink('home'));
 
-// Check user status
-$isLogged = (isset($_SESSION['UserData']));
 [$Message, $Link] = checkLogStatus($isLogged);
 
 include("./Common/PageElements/header.php");
@@ -15,8 +30,8 @@ include("./Common/PageElements/header.php");
 <div class="container" style="width: 50%;">
 <?php 
 // If the user is logged in display custom message
-if (isset($_SESSION['UserData'])){
-    $name = $_SESSION['UserData']['userName'];
+if (isset($_SESSION['serializedUser'])){
+    $name =  $currentUser -> getName();;
     echo <<<DOC
     <h1 class='text-center mb-4'>Welcome back to Algonquin Social Media Site, $name</h1>
     <div class='row'>
