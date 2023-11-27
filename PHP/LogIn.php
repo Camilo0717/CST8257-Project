@@ -86,7 +86,6 @@
             
             if($row){
                 // User exists
-                // Save data into session for CourseSelection.php page
                 $currentUser = new User($row['UserId'], $row['Name']);
                 
                 // Save object to session

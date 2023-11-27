@@ -102,7 +102,35 @@ function renderAlbumDropdown($currentUserId) {
     return $dropdownHTML;
 }
 
-
+function getFriendsList($currentUserId){
+    // Query to select accepted friends
+    $query = "SELECT u.Name friendName FROM user u "
+            . "JOIN friendship f on f.Friend_RequesteeId = u.UserId "
+            . "WHERE f.Friend_RequesterId = :currentUserId "
+            . "AND f.Status = 'accepted' "
+            . "UNION (SELECT u.Name friendName FROM user u "
+            . "JOIN friendship f on f.Friend_RequesterId = u.UserId "
+            . "WHERE f.Friend_RequesteeId = :currentUserId "
+            . "AND f.Status = 'accepted');";
+    $prepQuery = executeQuery($query, ['currentUserId'=>$currentUserId]);
+    
+    $friendArray = [];
+    
+    if ($prepQuery) {
+        if ($prepQuery->rowCount() == 0) {
+            $message = 'You don\'t have any friends at the moment.';
+        } else {
+            $message = 'Friend List';
+            foreach ($prepQuery as $row){
+                $friendArray[] = $row['friendName'];
+            }
+        }
+    } else {
+            $message = 'An error ocurred when trying to fetch your friend list.';
+    }
+    
+    return ['message' => $message, 'friendArray'=>$friendArray];
+}
 
 function initSessionVar(&$variable){
     if (isset($_SESSION[$variable])){
@@ -140,7 +168,7 @@ function insertNewAlbum($title, $description, $currentUserId, $accessibilityCode
     $stmt->execute();
 }
 
-// Uploads ipctures to local file 
+// Uploads pictures to local file 
 function uploadPictures($albumId, $title, $description, $files, $currentUserId) {
     $targetDirectory = "C:/Users/migue_usbrqse/OneDrive/Pictures/Temp_PHP_Project/";
     $uploadSuccess = true;
