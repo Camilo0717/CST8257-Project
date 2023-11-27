@@ -1,3 +1,7 @@
+<?php 
+
+?>
+
 <!DOCTYPE html>
 <html lang="en" style="position: relative; min-height: 100%;">
 <head>
@@ -35,6 +39,7 @@
                     <li class="nav-item">
                         <a class="nav-link <?php echo $activeLog; ?>" href="<?php echo "$Link"; ?>"><?php echo $Message; ?></a>
                     </li>
+                      
                 </ul>
             </div>
         </div>

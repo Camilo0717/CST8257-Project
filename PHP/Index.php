@@ -1,23 +1,35 @@
 <?php
 session_start();
 
-include_once("Common/Libraries/functions.php");
+// include libraries
+foreach (glob("Common/Libraries/*.php") as $filename) {
+    include $filename;
+}
 
 // Set active Link
 extract(setActiveLink('home'));
 
 // Check user status
-$isLogged = (isset($_SESSION['UserData']));
+$isLogged = (isset($_SESSION['serializedUser']));
 [$Message, $Link] = checkLogStatus($isLogged);
+
+if (isset($_SESSION['serializedUser'])) {
+    $serializedUser = $_SESSION['serializedUser'];
+    // Get user object
+    $currentUser = unserialize($serializedUser);
+} else {
+    header("Location: LogIn.php");
+    exit;
+}
 
 include("./Common/PageElements/header.php");
 ?>
 <div class="container" style="width: 50%;">
-<?php 
+    <?php
 // If the user is logged in display custom message
-if (isset($_SESSION['UserData'])){
-    $name = $_SESSION['UserData']['userName'];
-    echo <<<DOC
+    if (isset($_SESSION['serializedUser'])) {
+    $name = $currentUser->getName();
+        echo <<<DOC
     <h1 class='text-center mb-4'>Welcome back to Algonquin Social Media Site, $name</h1>
     <div class='row'>
         <div class='col offset-1'>
@@ -27,8 +39,8 @@ if (isset($_SESSION['UserData'])){
     <br/>
     </div>
     DOC;
-} else {
-    echo <<<DOC
+    } else {
+        echo <<<DOC
     <h1 class='text-center mb-4'>Welcome to Algonquin Social Media Site </h1>
     <div class='row'>
         <div class='col offset-1'>
@@ -43,8 +55,8 @@ if (isset($_SESSION['UserData'])){
     <br/>
     </div>
     DOC;
-}
-?>       
-<?php
-include("./Common/PageElements/footer.php"); 
-?>
+    }
+    ?>       
+    <?php
+    include("./Common/PageElements/footer.php");
+    ?>
