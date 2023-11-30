@@ -3,7 +3,7 @@ session_start();
 require("Common/Libraries/functions.php");
 
 // Set active Link
-extract(setActiveLink('MyPictures'));
+extract(setActiveLink('Pictures'));
 
 // Check user status
 $isLogged = isset($_SESSION['userId']);

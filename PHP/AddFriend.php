@@ -1,95 +1,57 @@
 <?php
 session_start();
+extract($_POST);
 
 // include libraries
-foreach (glob("Common/Libraries/*.php") as $filename)
-{
+foreach (glob("Common/Libraries/*.php") as $filename) {
     include $filename;
 }
-
-// Common function: If the user is not logged in and tries to access any private page
-// Redirect to log in
-// After login, redirect to the page he/she was trying to access
-
-if (isset($_SESSION['serializedUser'])){
-    $serializedUser = $_SESSION['serializedUser'];
-    // Get user object
-    $currentUser = unserialize($serializedUser);
-} else {
-    header("Location: LogIn.php");
-    exit;
-}
-
-echo $currentUser -> getName();
 
 // Set active Link
 extract(setActiveLink('Friends'));
 
 // Check user status
-$isLogged = (isset($_SESSION['UserData']));
+$isLogged = (isset($_SESSION['serializedUser']));
 [$Message, $Link] = checkLogStatus($isLogged);
 
-// Extract data
-$friendId = null;
+$currentUserId = $_SESSION['userId'] ?? null;
+
+$friendId = $_SESSION['friendId'] ?? null;
+
 $errorMsg = '';
 $confirmationMsg = '';
 
-// Database Connection
-$dbConnection = parse_ini_file("./Common/Project.ini");
-
-extract($dbConnection);
-
-$myPdo = new PDO($dsn, $user, $password);
-
-// Test connection
-
-$sqlLFriends = 'SELECT Friend_RequesteeId, Status FROM friendship'
-        . ' WHERE Friend_RequesterId=:userId';
-
-$prepFriends = executeQuery($sqlLFriends, ['userId'=>$userId]);
-
-//if ($prepFriends){
-//    foreach ($prepFriends as $request){
-//        echo "Requested id:" .$request['Friend_RequesteeId'];
-//        echo "<br/>";
-//        echo "Status:" .$request['Status'];
-//        echo "<br/>";
-//    }
-//} else {
-//    $errorMsg = 'Error in the database connection';
-//}
-// On post: Check if friendID exists
-// friendID != self.id
-// request rules
+// Redirect if not logged in
+if (isset($_SESSION['serializedUser'])) {
+    $serializedUser = $_SESSION['serializedUser'];
+    $currentUser = unserialize($serializedUser);  
+} else {
+    header("Location: LogIn.php");
+    exit;
+}
 
 if (isset($btnSubmit)){
     extract($_POST);
-    $errorMsg = '';
-    $confirmationMsg = '';
-    $userId = 'id1';
-    $userName = 'user1';
-    
-    // validate friendID
 }
 
 include("./Common/PageElements/header.php");
 ?>
 <div class="container" style=" margin-left: 50px;">
     <div class="row">
-        <div class="col offset-3"><h1 class='mb-4'>Add Friend</h1></div>
+        <div class="offset-1 offset-sm-2"><h1 class='mb-4'>Add Friend</h1></div>
     </div>
     <div class='row'>
-        <div class='col-8'>
-            <h5 style='line-height: 1'>Welcome <strong><?php echo $userName;?></strong>! (Not you? Change user <a href="LogOut.php">here</a>).</h5>
+        <div class='col'>
+            <h5 style='line-height: 1'>Welcome <strong><?php echo $currentUser -> getName();?></strong>! (Not you? Change user <a href="LogOut.php">here</a>).</h5>
         </div>
     </div>
     <div class='row'>
-        <div class='col-8'>
+        <div class='col'>
             <h5 style='line-height: 1'>Please enter the ID of the user you want to be friends with.</h5>
         </div>
     </div>
     <div class='row'>
-        <div class='col-8'>
+        <div class='col-6 col-sm'>
             <hr style="margin: 0;">        
         </div>
     </div>       
