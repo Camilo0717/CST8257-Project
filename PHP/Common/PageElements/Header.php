@@ -1,5 +1,9 @@
 <?php 
+include_once("Common/Libraries/functions.php");
 
+// Check if the user is logged in
+$isLogged = isset($_SESSION['userId']);
+[$logText, $logLink] = checkLogStatus($isLogged);
 ?>
 
 <!DOCTYPE html>
@@ -37,7 +41,7 @@
                         <a class="nav-link <?php echo $activeUpload; ?>" href="UploadPictures.php">Upload Pictures</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link <?php echo $activeLog; ?>" href="<?php echo "$Link"; ?>"><?php echo $Message; ?></a>
+                        <a class="nav-link <?php echo $activeLog; ?>" href="<?php echo $logLink; ?>"><?php echo $logText; ?></a>
                     </li>
                       
                 </ul>

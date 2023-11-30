@@ -4,23 +4,19 @@ session_start();
 include("Common/Libraries/functions.php");
 
 // Set active Link
-//$activePage = setActiveLink('MyAlbums');
 extract(setActiveLink('MyAlbums'));
 
 // Check user status
 $isLogged = isset($_SESSION['userId']);
 [$Message, $Link] = checkLogStatus($isLogged);
 
-if (isset($_SESSION['serializedUser'])){
-    $serializedUser = isset($_SESSION['serializedUser']);
-    // Get user object
-    $currentUser = unserialize($serializedUser);
-} else {
+// Redirect if not logged in
+if (!$isLogged) {
     header("Location: LogIn.php");
     exit;
 }
 
-$currentUserId = $_SESSION['serializedUser'];
+$currentUserId = $_SESSION['userId'];
 
 // Include header
 include 'Common/PageElements/header.php';
@@ -36,14 +32,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $accessibilityCode = $_POST['accessibility'] ?? '';
     $description = $_POST['description'] ?? '';
 
-    insertNewAlbum($title, $description, $currentUserId, $accessibilityCode);
-
+    $resultMessage = insertNewAlbum($title, $description, $currentUserId, $accessibilityCode);
+    echo "<p>$resultMessage</p>";
 }
 
 // Fetch accessibility options
 $accessibilityOptions = getAccessibilityOptions();
-
-
 ?>
 
 
@@ -58,12 +52,12 @@ $accessibilityOptions = getAccessibilityOptions();
             <div class="form-group">
                 <label for="accessibility">Accessibility:</label>
                 <select class="form-control" id="accessibility" name="accessibility">
-                    <?php
-                    // Display accessibility options
-                    foreach ($accessibilityOptions as $option) {
-                        echo '<option value="' . htmlspecialchars($option['Accessibility_Code']) . '">' . htmlspecialchars($option['Description']) . '</option>';
-                    }
-                    ?>
+<?php
+// Display accessibility options
+foreach ($accessibilityOptions as $option) {
+    echo '<option value="' . htmlspecialchars($option['Accessibility_Code']) . '">' . htmlspecialchars($option['Description']) . '</option>';
+}
+?>
                 </select>
             </div>
             <div class="form-group">

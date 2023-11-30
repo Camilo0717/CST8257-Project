@@ -10,14 +10,10 @@ foreach (glob("Common/Libraries/*.php") as $filename) {
 extract(setActiveLink('home'));
 
 // Check user status
-$isLogged = (isset($_SESSION['serializedUser']));
+$isLogged = isset($_SESSION['userId']);
 [$Message, $Link] = checkLogStatus($isLogged);
 
-if (isset($_SESSION['serializedUser'])) {
-    $serializedUser = $_SESSION['serializedUser'];
-    // Get user object
-    $currentUser = unserialize($serializedUser);
-} else {
+if (!$isLogged) {
     header("Location: LogIn.php");
     exit;
 }

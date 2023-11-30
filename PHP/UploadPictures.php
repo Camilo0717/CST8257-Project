@@ -2,27 +2,24 @@
 session_start();
 
 require_once("Common/Libraries/functions.php");
-require_once("Common/Libraries/user.php");
 
 // Set active Link
 extract(setActiveLink('UploadPictures'));
 
 // Check user status
-$isLogged = (isset($_SESSION['UserData'])); 
+$isLogged = isset($_SESSION['userId']);
 [$Message, $Link] = checkLogStatus($isLogged);
 
 include 'Common/PageElements/header.php';
 
 // Redirect if not logged in
-if (isset($_SESSION['serializedUser'])) {
-    $serializedUser = $_SESSION['serializedUser'];
-    $currentUser = unserialize($serializedUser);
-    $currentUserId = $currentUser->getUserId(); 
-} else {
+if (!$isLogged) {
     header("Location: LogIn.php");
     exit;
 }
 
+// Get the current user's ID from the session
+$currentUserId = $_SESSION['userId'];
 
 $uploadStatus = "";
 

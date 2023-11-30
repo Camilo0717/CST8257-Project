@@ -6,32 +6,40 @@ require("Common/Libraries/functions.php");
 extract(setActiveLink('MyPictures'));
 
 // Check user status
-$isLogged = (isset($_SESSION['UserData']));
+$isLogged = isset($_SESSION['userId']);
 [$Message, $Link] = checkLogStatus($isLogged);
 
-$currentUserId = $_SESSION['userId'] ?? null;
-
 // Redirect if not logged in
-if (isset($_SESSION['serializedUser'])) {
-    $serializedUser = $_SESSION['serializedUser'];
-    $currentUser = unserialize($serializedUser);  
-} else {
+if (!$isLogged) {
     header("Location: LogIn.php");
     exit;
 }
 
+// Get the current user's ID from the session
+$currentUserId = $_SESSION['userId'];
 
 $selectedAlbumId = $_POST['albumSelection'] ?? null;
-$thumbnails = $selectedAlbumId ? getThumbnails($selectedAlbumId) : [];
-
+$thumbnails = [];
 $selectedPictureId = $_GET['selectedPicture'] ?? null;
 $selectedPictureDetails = null;
-$pictureComments = null;
+$pictureComments = []; // Initialize as an empty array
+// Debugging: Echo the selected album ID and picture ID
+echo "Selected Album ID: " . htmlspecialchars($selectedAlbumId) . "<br>";
+echo "Selected Picture ID: " . htmlspecialchars($selectedPictureId) . "<br>";
+
+if ($selectedAlbumId) {
+    $thumbnails = getThumbnails($selectedAlbumId);
+    echo "Thumbnails count: " . count($thumbnails) . "<br>"; // Check how many thumbnails were retrieved
+    if (!$selectedPictureId && !empty($thumbnails)) {
+        $selectedPictureId = $thumbnails[0]['Picture_Id']; // Set the first picture as default
+    }
+}
 
 if ($selectedPictureId) {
     $selectedPictureDetails = getPictureDetails($selectedPictureId);
-    // create getPictureComments function exists to fetch comments
-    $pictureComments = getPictureComments($selectedPictureId);
+    if (!$selectedPictureDetails) {
+        echo "No details found for Picture ID: " . htmlspecialchars($selectedPictureId) . "<br>";
+    }
 }
 
 
@@ -43,7 +51,6 @@ include 'Common/PageElements/header.php';
         <h2>Manage My Pictures</h2>
 
         <form method="post" id="albumForm">
-            <!-- Album Dropdown -->
             <div class="form-group">
                 <label for="albumSelection">Select an Album</label>
                 <?php echo renderAlbumDropdown($currentUserId); ?>
@@ -54,8 +61,7 @@ include 'Common/PageElements/header.php';
         <!-- Picture Area -->
         <div id="pictureArea" class="mb-3">
             <?php if ($selectedPictureDetails): ?>
-                <img src="path/to/fullsize/<?php echo htmlspecialchars($selectedPictureDetails['File_Name']); ?>" 
-                     class="img-fluid" />
+                <img src="image_serve.php?file=<?php echo urlencode($selectedPictureDetails['File_Name']); ?>" class="img-fluid" />
                 <p><?php echo htmlspecialchars($selectedPictureDetails['Description']); ?></p>
             <?php endif; ?>
         </div>
@@ -64,21 +70,23 @@ include 'Common/PageElements/header.php';
         <div class="thumbnail-bar d-flex flex-row">
             <?php foreach ($thumbnails as $thumbnail): ?>
                 <a href="MyPictures.php?selectedPicture=<?php echo $thumbnail['Picture_Id']; ?>&albumSelection=<?php echo $selectedAlbumId; ?>">
-                    <img src="path/to/thumbnails/<?php echo htmlspecialchars($thumbnail['File_Name']); ?>" 
-                         class="img-thumbnail" />
+                    <img src="image_serve.php?file=<?php echo urlencode($thumbnail['File_Name']); ?>" 
+                         class="img-thumbnail <?php echo $selectedPictureId == $thumbnail['Picture_Id'] ? 'border border-primary' : ''; ?>" />
                 </a>
             <?php endforeach; ?>
         </div>
 
 
+
         <!-- Description and Comment Area -->
         <div id="descriptionAndComments" class="mt-3">
-            <?php if ($pictureComments): ?>
+            <?php if (!empty($pictureComments)): ?>
                 <!-- Loop through and display comments -->
             <?php else: ?>
                 <p>No comments available.</p>
             <?php endif; ?>
         </div>
+
 
         <!-- Comment Form -->
         <form id="commentForm" method="post" action="comment_handler.php">
@@ -92,15 +100,7 @@ include 'Common/PageElements/header.php';
 
 
     <script>
-        // JavaScript handles thumbnail clicks, displays picture and comments
-        document.querySelectorAll('.thumbnail-bar img').forEach(thumbnail => {
-            thumbnail.addEventListener('click', () => {
-                const pictureId = thumbnail.dataset.pictureId;
-                // Maybe use AJAX request to a PHP script (e.g., getPictureDetails.php) to fetch picture details
-                // Update the picture area and comments section upon receiving the response
-            });
-        });
-
+        // You can add JavaScript if needed for additional interactivity
     </script>
 </body>
 
