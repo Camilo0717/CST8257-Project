@@ -104,17 +104,23 @@ function renderAlbumDropdown($currentUserId) {
 
 function getFriendsList($currentUserId){
     // Query to select accepted friends
-    $query = "SELECT u.Name friendName FROM user u "
+    $query = "SELECT u.Name friendName, u.UserId friendId, coalesce(temp.numShared, 0) sharedAlbums FROM user u "
             . "JOIN friendship f on f.Friend_RequesteeId = u.UserId "
+            . "LEFT JOIN (SELECT Owner_Id, count(*) numShared from album "
+            . "WHERE Accessibility_Code = 'shared' GROUP BY Owner_Id) temp on temp.Owner_Id = u.userId "
             . "WHERE f.Friend_RequesterId = :currentUserId "
             . "AND f.Status = 'accepted' "
-            . "UNION (SELECT u.Name friendName FROM user u "
+            . "UNION (SELECT u.Name friendName, u.UserId friendId, coalesce(temp.numShared, 0) sharedAlbums FROM user u "
             . "JOIN friendship f on f.Friend_RequesterId = u.UserId "
+            . "LEFT JOIN (SELECT Owner_Id, count(*) numShared from album "
+            . "WHERE Accessibility_Code = 'shared' GROUP BY Owner_Id) temp on temp.Owner_Id = u.userId "
             . "WHERE f.Friend_RequesteeId = :currentUserId "
             . "AND f.Status = 'accepted');";
+    
     $prepQuery = executeQuery($query, ['currentUserId'=>$currentUserId]);
     
     $friendArray = [];
+    $friendData = [];
     
     if ($prepQuery) {
         if ($prepQuery->rowCount() == 0) {
@@ -122,7 +128,11 @@ function getFriendsList($currentUserId){
         } else {
             $message = 'Friend List';
             foreach ($prepQuery as $row){
-                $friendArray[] = $row['friendName'];
+                $friendData['friendId'] = $row['friendId'];
+                $friendData['friendName'] = $row['friendName'];
+                $friendData['sharedAlbums'] = $row['sharedAlbums'];
+                $friendArray[] = $friendData;
+                $friendData = [];
             }
         }
     } else {
@@ -130,6 +140,87 @@ function getFriendsList($currentUserId){
     }
     
     return ['message' => $message, 'friendArray'=>$friendArray];
+}
+
+function getFriendsRequests($currentUserId){
+    // Query to select requests
+    $query = "SELECT u.Name friendName, u.UserId friendId FROM user u "
+            . "JOIN friendship f on f.Friend_RequesteeId = u.UserId "
+            . "WHERE f.Friend_RequesterId = :currentUserId "
+            . "AND f.Status = 'request' "
+            . "UNION (SELECT u.Name friendName, u.UserId friendId FROM user u "
+            . "JOIN friendship f on f.Friend_RequesterId = u.UserId "
+            . "WHERE f.Friend_RequesteeId = :currentUserId "
+            . "AND f.Status = 'request' );";
+    
+    $prepQuery = executeQuery($query, ['currentUserId'=>$currentUserId]);
+    
+    $requestArray = [];
+    $requestData = [];
+    
+    if ($prepQuery) {
+        if ($prepQuery->rowCount() == 0) {
+            $message = 'You don\'t have any friends request at the moment.';
+        } else {
+            $message = 'Friend Requests';
+            foreach ($prepQuery as $row){
+                $requestData['userId'] = $row['friendId'];
+                $requestData['userName'] = $row['friendName'];
+                $requestArray[] = $requestData;
+                $requestData = [];
+            }
+        }
+    } else {
+            $message = 'An error ocurred when trying to fetch your friend request list.';
+    }
+    
+    return ['message' => $message, 'requestArray'=>$requestArray];
+}
+
+function deleteFriend($friendId, $currentUserId){
+    // Query from requestee
+    $query1 = "DELETE FROM friendship WHERE Friend_RequesterId = :friendId AND "
+            . "Friend_RequesteeId = :currentUserId AND status = 'accepted'";
+    
+    // Query from requester
+    $query2 = "DELETE FROM friendship WHERE Friend_RequesteeId = :friendId AND "
+            . "Friend_RequesterId = :currentUserId AND status = 'accepted'";
+    
+    executeQuery($query1, ['currentUserId'=>$currentUserId, 'friendId'=>$friendId]);
+    executeQuery($query2, ['currentUserId'=>$currentUserId, 'friendId'=>$friendId]);
+}
+
+function deleteRequest($userId, $currentUserId){
+    // Query from requestee
+    $query1 = "DELETE FROM friendship WHERE Friend_RequesterId = :userId"
+            . " AND Friend_RequesteeId = :currentUserId AND status = 'request'";
+    
+    // Query from requester
+    $query2 = "DELETE FROM friendship WHERE Friend_RequesteeId = :userId"
+            . " AND Friend_RequesterId = :currentUserId AND status = 'request'";
+    
+
+    executeQuery($query1, ['currentUserId'=>$currentUserId, 'userId'=>$userId]);
+    executeQuery($query2, ['currentUserId'=>$currentUserId, 'userId'=>$userId]);
+}
+
+function acceptRequest($userId, $currentUserId){
+    // Query from requestee
+    $query1 = "UPDATE friendship SET status = 'accepted' WHERE "
+            . "Friend_RequesterId = :userId AND Friend_RequesteeId = :currentUserId ";
+    
+    // Query from requester
+    $query2 = "UPDATE friendship SET status = 'accepted' WHERE "
+            . "Friend_RequesteeId = :userId AND Friend_RequesterId = :currentUserId ";
+    
+    
+
+    executeQuery($query1, ['currentUserId'=>$currentUserId, 'userId'=>$userId]);
+    executeQuery($query2, ['currentUserId'=>$currentUserId, 'userId'=>$userId]);
+}
+
+function sendFriendRequest($userId, $friendId){
+    
 }
 
 function initSessionVar(&$variable){
