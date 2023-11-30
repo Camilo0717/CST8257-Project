@@ -32,6 +32,14 @@ if (isset($_SESSION['serializedUser'])) {
 
 if (isset($btnSubmit)){
     extract($_POST);
+    $currentUserId = $_SESSION['userId'] ?? null;
+    if (isset($friendId)){
+        if ($friendId == '' || $friendId == null){
+            $errorMsg = 'You did not submit any friend Id.';
+        } else {
+            $result = sendFriendRequest($currentUser, $friendId);
+        }
+    }
 }
 
 include("./Common/PageElements/header.php");

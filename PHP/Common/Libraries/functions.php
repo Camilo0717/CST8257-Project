@@ -220,7 +220,20 @@ function acceptRequest($userId, $currentUserId){
 }
 
 function sendFriendRequest($userId, $friendId){
+    // check if friend Id exists
+    $query1 = "SELECT Name FROM user WHERE "
+            . "UserId =:userId";
+    $prep1 = executeQuery($query1, ['userId'=>$userId]);
+    if ($prep1){
+        if ($prep1->rowCount()==0){
+            // The user doesn't exist
+            return "The user id you entered does not exist.";
+        }
+    }
+    // check if the users are already friends or
+    // if there is a pending invitation
     
+    // Send friendship request
 }
 
 function initSessionVar(&$variable){
