@@ -243,7 +243,7 @@ function getAccessibilityOptions() {
 
 // Function to insert a new album
 function insertNewAlbum($title, $description, $currentUserId, $accessibilityCode) {
-    // Ensure Owner_Id is not longer than 16 characters
+    // Ensure Owner_Id is not longer than 16 characters <--- can probably remove
     $currentUserId = substr($currentUserId, 0, 16);
 
     $dbConnection = parse_ini_file("./Common/Project.ini");
@@ -261,7 +261,7 @@ function insertNewAlbum($title, $description, $currentUserId, $accessibilityCode
      if (!$stmt->execute()) {
         return "<div class='text-danger text-end'>Error: " . implode(", ", $stmt->errorInfo()); // This will show the error details
     }
-     return "<div class='text-success text-start'>Album added successfully</div>";
+     return "<div class='text-success text-start'>Album added successfully</div>"; // Shows success message
 }
 
 // Uploads pictures to local file 

@@ -18,9 +18,8 @@ if (!$isLogged) {
 // Get the current user's ID from the session
 $currentUserId = $_SESSION['userId'];
 
-// Correcting the variable to fetch the selected album ID
+// fetch the selected album ID and pictureID
 $selectedAlbumId = $_GET['albumSelection'] ?? null;
-
 $selectedPictureId = $_GET['selectedPicture'] ?? null;
 
 // Check for POST request and add comment
