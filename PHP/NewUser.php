@@ -12,7 +12,7 @@
     extract(setActiveLink('Log'));
     
     // Check user status
-    $isLogged = (isset($_SESSION['serializedUser']));
+    $isLogged = (isset($_SESSION['userId']));
     [$Message, $Link] = checkLogStatus($isLogged);
     
     // If the user is already logged in, redirect to Home page
@@ -33,24 +33,7 @@
     foreach($userData as $variable){
         initSessionVar($variable);
     }
- 
-//    // On btnClear click
-//    if (isset($btnClear)){
-//        // Clear all fields and error messages
-//        $name = ''; $studentId = ''; $phone = ''; $pswd = ''; $pswd2 = '';
-//
-//        $nameErrorMsg = ''; $studentIdErrorMsg = '';
-//        $phoneErrorMsg = ''; $pswdErrorMsg = ''; $pswd2ErrorMsg = '';
-//        
-//        // Clear relevant session variables
-//        $_SESSION["name"] = $name;
-//        $_SESSION["studentId"] = $studentId;
-//        $_SESSION["phone"] = $phone;
-//        $_SESSION["pswd"] = $pswd;
-//        $_SESSION["pswd2"] = $pswd2;
-//
-//    }
-//    
+   
     // On btnNext click
     if (isset($btnSubmit)){
         // Retrieve input data
@@ -102,16 +85,12 @@
                 
                 executeQuery($insertStmt, ['UserId'=>$userId, 'Name'=>$userName, 'Phone'=>$userPhone, 'Password'=>$hashedPswd]);
                 
-                // Create user object
-                $currentUser = new User($userId, $userName);
-                
-                // Save object to session
-                $_SESSION['currentUser'] = $currentUser;
-                $serializedUser = serialize($currentUser);
-                $_SESSION['serializedUser'] = $serializedUser;
+                $_SESSION['userId'] = $userId;
+                $_SESSION['userName'] = $userName;
                 
                 // Redirect User to *.php
                 header("Location: Index.php");
+                exit();
 
                 // Redirect user to previous page
             }

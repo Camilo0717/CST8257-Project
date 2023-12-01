@@ -11,24 +11,20 @@ foreach (glob("Common/Libraries/*.php") as $filename) {
 extract(setActiveLink('Friends'));
 
 // Check user status
-$isLogged = (isset($_SESSION['serializedUser']));
+$isLogged = (isset($_SESSION['userId']));
 [$Message, $Link] = checkLogStatus($isLogged);
 
-$currentUserId = $_SESSION['userId'] ?? null;
+if (!$isLogged) {
+    header("Location: LogIn.php");
+    exit;
+}
 
+$currentUserId = $_SESSION['userId'] ?? null;
+$currentUserName = $_SESSION['userName'] ?? null;
 $friendId = $_SESSION['friendId'] ?? null;
 
 $errorMsg = '';
 $confirmationMsg = '';
-
-// Redirect if not logged in
-if (isset($_SESSION['serializedUser'])) {
-    $serializedUser = $_SESSION['serializedUser'];
-    $currentUser = unserialize($serializedUser);  
-} else {
-    header("Location: LogIn.php");
-    exit;
-}
 
 if (isset($btnSubmit)){
     extract($_POST);
@@ -37,7 +33,7 @@ if (isset($btnSubmit)){
         if ($friendId == '' || $friendId == null){
             $errorMsg = 'You did not submit any friend Id.';
         } else {
-            $result = sendFriendRequest($currentUser, $friendId);
+            $result = sendFriendRequest($currentUserId, $friendId);
         }
     }
 }
@@ -50,7 +46,7 @@ include("./Common/PageElements/header.php");
     </div>
     <div class='row'>
         <div class='col'>
-            <h5 style='line-height: 1'>Welcome <strong><?php echo $currentUser -> getName();?></strong>! (Not you? Change user <a href="LogOut.php">here</a>).</h5>
+            <h5 style='line-height: 1'>Welcome <strong><?php echo $currentUserName;?></strong>! (Not you? Change user <a href="LogOut.php">here</a>).</h5>
         </div>
     </div>
     <div class='row'>

@@ -15,12 +15,9 @@ $isLogged = (isset($_SESSION['serializedUser']));
 [$Message, $Link] = checkLogStatus($isLogged);
 
 $currentUserId = $_SESSION['userId'] ?? null;
+$currentUserName = $_SESSION['userName'] ?? null;
 
-// Redirect if not logged in
-if (isset($_SESSION['serializedUser'])) {
-    $serializedUser = $_SESSION['serializedUser'];
-    $currentUser = unserialize($serializedUser);  
-} else {
+if (!$isLogged) {
     header("Location: LogIn.php");
     exit;
 }
@@ -71,7 +68,7 @@ include 'Common/PageElements/header.php';
             <!-- Friend List -->
             <div class="form-group">               
                 <?php 
-                    $friendList = getFriendsList($currentUser -> getUserId()); 
+                    $friendList = getFriendsList($currentUserId); 
                     echo <<<HTML
                                 <div class=row>
                                     <div class=col>

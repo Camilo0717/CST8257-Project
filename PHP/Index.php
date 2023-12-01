@@ -13,20 +13,14 @@ extract(setActiveLink('home'));
 $isLogged = isset($_SESSION['userId']);
 [$Message, $Link] = checkLogStatus($isLogged);
 
-if (!$isLogged) {
-    header("Location: LogIn.php");
-    exit;
-}
-
 include("./Common/PageElements/header.php");
 ?>
 <div class="container" style="width: 50%;">
     <?php
 // If the user is logged in display custom message
-    if (isset($_SESSION['serializedUser'])) {
-    $name = $currentUser->getName();
+    if ($isLogged) {
         echo <<<DOC
-    <h1 class='text-center mb-4'>Welcome back to Algonquin Social Media Site, $name</h1>
+    <h1 class='text-center mb-4'>Welcome back to Algonquin Social Media Site, {$_SESSION['userName']}</h1>
     <div class='row'>
         <div class='col offset-1'>
             <h5 style='line-height: 1.5'>You are already logged in. If you wish to log out proceed to <a href="LogOut.php">Log Out.</a></h5>
