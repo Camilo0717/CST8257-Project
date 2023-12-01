@@ -13,11 +13,6 @@ extract(setActiveLink('home'));
 $isLogged = isset($_SESSION['userId']);
 [$Message, $Link] = checkLogStatus($isLogged);
 
-if (!$isLogged) {
-    header("Location: LogIn.php");
-    exit;
-}
-
 include("./Common/PageElements/header.php");
 ?>
 <div class="container" style="width: 50%;">
