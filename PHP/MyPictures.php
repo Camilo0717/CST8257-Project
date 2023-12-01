@@ -18,15 +18,16 @@ if (!$isLogged) {
 // Get the current user's ID from the session
 $currentUserId = $_SESSION['userId'];
 
-// Check if album is selected
+// Correcting the variable to fetch the selected album ID
 $selectedAlbumId = $_GET['albumSelection'] ?? null;
-// Check if picture is selected
+
 $selectedPictureId = $_GET['selectedPicture'] ?? null;
 
 // Check for POST request and add comment
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['commentText']) && $selectedPictureId) {
     // Add a new comment
     addComment($selectedPictureId, $currentUserId, $_POST['commentText']);
+    $pictureComments = getPictureComments($selectedPictureId);
     // Reload the page to show new comments for the same picture
     header("Location: MyPictures.php?selectedPicture=$selectedPictureId&albumSelection=$selectedAlbumId");
     exit;
@@ -71,7 +72,7 @@ include 'Common/PageElements/header.php';
             </div>
         </form>
 
-        <!-- Picture Area -->
+         <!-- Picture Area -->
         <div id="pictureArea" class="mb-5" style="text-align: left;">
             <?php if ($selectedPictureDetails): ?>
                 <img src="image_serve.php?file=<?php echo urlencode($selectedPictureDetails['File_Name']); ?>" class="img-fluid" style="max-width: 900px;" />

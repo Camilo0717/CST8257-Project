@@ -72,7 +72,7 @@ function executeQuery($query, $arguments) {
 }
 
 function renderAlbumDropdown($currentUserId, $selectedAlbumId = null) {
-    $dropdownHTML = '<select class="form-control" id="uploadAlbum" name="uploadAlbum">';
+    $dropdownHTML = '<select class="form-control" id="albumSelection" name="albumSelection">';
 
     // Database Connection
     $dbConnection = parse_ini_file("./Common/Project.ini");
@@ -101,6 +101,7 @@ function renderAlbumDropdown($currentUserId, $selectedAlbumId = null) {
     $dropdownHTML .= '</select>';
     return $dropdownHTML;
 }
+
 
 function getFriendsList($currentUserId) {
     // Query to select accepted friends
@@ -257,10 +258,10 @@ function insertNewAlbum($title, $description, $currentUserId, $accessibilityCode
     $stmt->bindParam(':ownerId', $currentUserId, PDO::PARAM_STR);
     $stmt->bindParam(':accessibilityCode', $accessibilityCode, PDO::PARAM_STR);
 
-    if (!$stmt->execute()) {
+     if (!$stmt->execute()) {
         return "<div class='text-danger text-end'>Error: " . implode(", ", $stmt->errorInfo()); // This will show the error details
     }
-     return "<div class='text-success text-center'>Album added successfully</div>";
+     return "<div class='text-success text-start'>Album added successfully</div>";
 }
 
 // Uploads pictures to local file 
