@@ -2,6 +2,7 @@
 session_start();
 
 include("Common/Libraries/functions.php");
+require_once("Common/Libraries/validation.php");
 
 // Set active Link
 extract(setActiveLink('MyAlbums'));
@@ -21,17 +22,13 @@ $currentUserId = $_SESSION['userId'];
 // Include header
 include 'Common/PageElements/header.php';
 
-// Database connection using a function from functions.php
-$dbConnection = parse_ini_file("./Common/Project.ini");
-extract($dbConnection);
-$pdo = new PDO($dsn, $user, $password);
-
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $title = $_POST['title'] ?? '';
     $accessibilityCode = $_POST['accessibility'] ?? '';
     $description = $_POST['description'] ?? '';
 
+    // Insert a new album
     $resultMessage = insertNewAlbum($title, $description, $currentUserId, $accessibilityCode);
     echo "<p>$resultMessage</p>";
 }
@@ -52,12 +49,12 @@ $accessibilityOptions = getAccessibilityOptions();
             <div class="form-group">
                 <label for="accessibility">Accessibility:</label>
                 <select class="form-control" id="accessibility" name="accessibility">
-<?php
+                    <?php
 // Display accessibility options
-foreach ($accessibilityOptions as $option) {
-    echo '<option value="' . htmlspecialchars($option['Accessibility_Code']) . '">' . htmlspecialchars($option['Description']) . '</option>';
-}
-?>
+                    foreach ($accessibilityOptions as $option) {
+                        echo '<option value="' . htmlspecialchars($option['Accessibility_Code']) . '">' . htmlspecialchars($option['Description']) . '</option>';
+                    }
+                    ?>
                 </select>
             </div>
             <div class="form-group">

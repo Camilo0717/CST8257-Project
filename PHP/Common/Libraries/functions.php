@@ -71,7 +71,7 @@ function executeQuery($query, $arguments) {
     return $preparedQuery;
 }
 
-function renderAlbumDropdown($currentUserId) {
+function renderAlbumDropdown($currentUserId, $selectedAlbumId = null) {
     $dropdownHTML = '<select class="form-control" id="uploadAlbum" name="uploadAlbum">';
 
     // Database Connection
@@ -83,13 +83,15 @@ function renderAlbumDropdown($currentUserId) {
     $stmt = $pdo->prepare($query);
 
     // Bind parameter
-    $stmt->bindParam(':currentUserId', $currentUserId, PDO::PARAM_STR); // Use PDO::PARAM_STR for string
-    // Execute query
+    $stmt->bindParam(':currentUserId', $currentUserId, PDO::PARAM_STR);
+
     if ($stmt->execute()) {
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            // Check if the current album is the selected album
+            $selectedAttribute = ($row['Album_Id'] == $selectedAlbumId) ? ' selected' : '';
             $escapedAlbumId = htmlspecialchars($row['Album_Id']);
             $escapedTitle = htmlspecialchars($row['Title']);
-            $dropdownHTML .= "<option value=\"{$escapedAlbumId}\">{$escapedTitle}</option>";
+            $dropdownHTML .= "<option value=\"{$escapedAlbumId}\"{$selectedAttribute}>{$escapedTitle}</option>";
         }
     } else {
         // Handle error when execute fails
@@ -100,7 +102,7 @@ function renderAlbumDropdown($currentUserId) {
     return $dropdownHTML;
 }
 
-function getFriendsList($currentUserId){
+function getFriendsList($currentUserId) {
     // Query to select accepted friends
     $query = "SELECT u.Name friendName, u.UserId friendId, coalesce(temp.numShared, 0) sharedAlbums FROM user u "
             . "JOIN friendship f on f.Friend_RequesteeId = u.UserId "
@@ -114,18 +116,18 @@ function getFriendsList($currentUserId){
             . "WHERE Accessibility_Code = 'shared' GROUP BY Owner_Id) temp on temp.Owner_Id = u.userId "
             . "WHERE f.Friend_RequesteeId = :currentUserId "
             . "AND f.Status = 'accepted');";
-    
-    $prepQuery = executeQuery($query, ['currentUserId'=>$currentUserId]);
-    
+
+    $prepQuery = executeQuery($query, ['currentUserId' => $currentUserId]);
+
     $friendArray = [];
     $friendData = [];
-    
+
     if ($prepQuery) {
         if ($prepQuery->rowCount() == 0) {
             $message = 'You don\'t have any friends at the moment.';
         } else {
             $message = 'Friend List';
-            foreach ($prepQuery as $row){
+            foreach ($prepQuery as $row) {
                 $friendData['friendId'] = $row['friendId'];
                 $friendData['friendName'] = $row['friendName'];
                 $friendData['sharedAlbums'] = $row['sharedAlbums'];
@@ -134,13 +136,13 @@ function getFriendsList($currentUserId){
             }
         }
     } else {
-            $message = 'An error ocurred when trying to fetch your friend list.';
+        $message = 'An error ocurred when trying to fetch your friend list.';
     }
-    
-    return ['message' => $message, 'friendArray'=>$friendArray];
+
+    return ['message' => $message, 'friendArray' => $friendArray];
 }
 
-function getFriendsRequests($currentUserId){
+function getFriendsRequests($currentUserId) {
     // Query to select requests
     $query = "SELECT u.Name friendName, u.UserId friendId FROM user u "
             . "JOIN friendship f on f.Friend_RequesteeId = u.UserId "
@@ -150,18 +152,18 @@ function getFriendsRequests($currentUserId){
             . "JOIN friendship f on f.Friend_RequesterId = u.UserId "
             . "WHERE f.Friend_RequesteeId = :currentUserId "
             . "AND f.Status = 'request' );";
-    
-    $prepQuery = executeQuery($query, ['currentUserId'=>$currentUserId]);
-    
+
+    $prepQuery = executeQuery($query, ['currentUserId' => $currentUserId]);
+
     $requestArray = [];
     $requestData = [];
-    
+
     if ($prepQuery) {
         if ($prepQuery->rowCount() == 0) {
             $message = 'You don\'t have any friends request at the moment.';
         } else {
             $message = 'Friend Requests';
-            foreach ($prepQuery as $row){
+            foreach ($prepQuery as $row) {
                 $requestData['userId'] = $row['friendId'];
                 $requestData['userName'] = $row['friendName'];
                 $requestArray[] = $requestData;
@@ -169,52 +171,49 @@ function getFriendsRequests($currentUserId){
             }
         }
     } else {
-            $message = 'An error ocurred when trying to fetch your friend request list.';
+        $message = 'An error ocurred when trying to fetch your friend request list.';
     }
-    
-    return ['message' => $message, 'requestArray'=>$requestArray];
+
+    return ['message' => $message, 'requestArray' => $requestArray];
 }
 
-function deleteFriend($friendId, $currentUserId){
+function deleteFriend($friendId, $currentUserId) {
     // Query from requestee
     $query1 = "DELETE FROM friendship WHERE Friend_RequesterId = :friendId AND "
             . "Friend_RequesteeId = :currentUserId AND status = 'accepted'";
-    
+
     // Query from requester
     $query2 = "DELETE FROM friendship WHERE Friend_RequesteeId = :friendId AND "
             . "Friend_RequesterId = :currentUserId AND status = 'accepted'";
-    
-    executeQuery($query1, ['currentUserId'=>$currentUserId, 'friendId'=>$friendId]);
-    executeQuery($query2, ['currentUserId'=>$currentUserId, 'friendId'=>$friendId]);
+
+    executeQuery($query1, ['currentUserId' => $currentUserId, 'friendId' => $friendId]);
+    executeQuery($query2, ['currentUserId' => $currentUserId, 'friendId' => $friendId]);
 }
 
-function deleteRequest($userId, $currentUserId){
+function deleteRequest($userId, $currentUserId) {
     // Query from requestee
     $query1 = "DELETE FROM friendship WHERE Friend_RequesterId = :userId"
             . " AND Friend_RequesteeId = :currentUserId AND status = 'request'";
-    
+
     // Query from requester
     $query2 = "DELETE FROM friendship WHERE Friend_RequesteeId = :userId"
             . " AND Friend_RequesterId = :currentUserId AND status = 'request'";
-    
 
-    executeQuery($query1, ['currentUserId'=>$currentUserId, 'userId'=>$userId]);
-    executeQuery($query2, ['currentUserId'=>$currentUserId, 'userId'=>$userId]);
+    executeQuery($query1, ['currentUserId' => $currentUserId, 'userId' => $userId]);
+    executeQuery($query2, ['currentUserId' => $currentUserId, 'userId' => $userId]);
 }
 
-function acceptRequest($userId, $currentUserId){
+function acceptRequest($userId, $currentUserId) {
     // Query from requestee
     $query1 = "UPDATE friendship SET status = 'accepted' WHERE "
             . "Friend_RequesterId = :userId AND Friend_RequesteeId = :currentUserId ";
-    
+
     // Query from requester
     $query2 = "UPDATE friendship SET status = 'accepted' WHERE "
             . "Friend_RequesteeId = :userId AND Friend_RequesterId = :currentUserId ";
-    
-    
 
-    executeQuery($query1, ['currentUserId'=>$currentUserId, 'userId'=>$userId]);
-    executeQuery($query2, ['currentUserId'=>$currentUserId, 'userId'=>$userId]);
+    executeQuery($query1, ['currentUserId' => $currentUserId, 'userId' => $userId]);
+    executeQuery($query2, ['currentUserId' => $currentUserId, 'userId' => $userId]);
 }
 
 function sendFriendRequest($userId, $friendId){
@@ -234,8 +233,8 @@ function sendFriendRequest($userId, $friendId){
     // Send friendship request
 }
 
-function initSessionVar(&$variable){
-    if (isset($_SESSION[$variable])){
+function initSessionVar(&$variable) {
+    if (isset($_SESSION[$variable])) {
         $variable = $_SESSION[$variable];
     } else {
         $variable = '';
@@ -272,14 +271,15 @@ function insertNewAlbum($title, $description, $currentUserId, $accessibilityCode
     $stmt->bindParam(':accessibilityCode', $accessibilityCode, PDO::PARAM_STR);
 
     if (!$stmt->execute()) {
-        return "Error: " . implode(", ", $stmt->errorInfo()); // This will show the error details
+        return "<div class='text-danger text-end'>Error: " . implode(", ", $stmt->errorInfo()); // This will show the error details
     }
-    return "Album added successfully";
+     return "<div class='text-success text-center'>Album added successfully</div>";
 }
 
 // Uploads pictures to local file 
 function uploadPictures($albumId, $title, $description, $files, $currentUserId) {
-    $targetDirectory = "C:/Users/migue_usbrqse/OneDrive/Pictures/Temp_PHP_Project/";
+    $targetDirectory = 'C:\Program Files\Ampps\www\CST8257-Project\PHP\Common\Images\\';
+
     $uploadSuccess = true;
     $errorMessages = [];
 
@@ -307,9 +307,7 @@ function uploadPictures($albumId, $title, $description, $files, $currentUserId) 
     }
 
     if (!$uploadSuccess) {
-        // Handle errors, e.g., log them or return them
         foreach ($errorMessages as $errorMsg) {
-            // Log or echo the error messages
             echo $errorMsg . "<br>";
         }
     }
@@ -363,4 +361,76 @@ function getPictureDetails($pictureId) {
     $stmt->bindParam(':pictureId', $pictureId, PDO::PARAM_INT);
     $stmt->execute();
     return $stmt->fetch(PDO::FETCH_ASSOC);
+}
+
+// Fetches comments
+function getPictureComments($pictureId) {
+    $dbConnection = parse_ini_file("./Common/Project.ini");
+    extract($dbConnection);
+    $pdo = new PDO($dsn, $user, $password);
+
+    // Enable exceptions for error handling
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+    try {
+        // Adjusted query without Comment_Date
+        $query = "SELECT Comment_Text, Author_Id as User_Id FROM comment WHERE Picture_Id = :pictureId ORDER BY Comment_Id DESC";
+        $stmt = $pdo->prepare($query);
+        $stmt->bindParam(':pictureId', $pictureId, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        echo "Error: " . $e->getMessage();
+        return [];
+    }
+}
+
+function getAlbumDetails($albumId) {
+    $dbConnection = parse_ini_file("./Common/Project.ini");
+    extract($dbConnection);
+    $pdo = new PDO($dsn, $user, $password);
+
+    try {
+        $query = "SELECT * FROM album WHERE Album_Id = :albumId";
+        $stmt = $pdo->prepare($query);
+        $stmt->bindParam(':albumId', $albumId, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        echo "Error: " . $e->getMessage();
+        return [];
+    }
+}
+
+//Adds/inserts comment into database
+
+function addComment($pictureId, $authorId, $commentText) {
+    echo "addComment function called"; // Debugging line
+    echo "Picture ID: $pictureId, Author ID: $authorId, Comment Text: $commentText<br>";
+
+    $dbConnection = parse_ini_file("./Common/Project.ini");
+    extract($dbConnection);
+    $pdo = new PDO($dsn, $user, $password);
+
+    // Enable exceptions for error handling
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+    try {
+        // Prepare and execute statement...
+        echo "Comment added successfully";
+    } catch (PDOException $e) {
+        echo "Error adding comment: " . $e->getMessage();
+    }
+
+    try {
+        $query = "INSERT INTO comment (Author_Id, Picture_Id, Comment_Text) VALUES (:authorId, :pictureId, :commentText)";
+        $stmt = $pdo->prepare($query);
+        $stmt->bindParam(':authorId', $authorId, PDO::PARAM_STR);
+        $stmt->bindParam(':pictureId', $pictureId, PDO::PARAM_INT);
+        $stmt->bindParam(':commentText', $commentText, PDO::PARAM_STR);
+        $stmt->execute();
+    } catch (PDOException $e) {
+        echo "Error: " . $e->getMessage();
+        // Optionally, handle the error more gracefully than just outputting it
+    }
 }

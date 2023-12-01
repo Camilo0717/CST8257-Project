@@ -110,3 +110,24 @@ function ValidateForm($array){
     }
     return true;
 }
+
+// Function to validate album selection
+function ValidateAlbumSelection($albumId, &$errorMsg) {
+    if (empty($albumId)) {
+        $errorMsg = "Please select an album.";
+    }
+}
+
+// Function to validate title
+function ValidateTitle($title, &$errorMsg) {
+    if (empty($title)) {
+        $errorMsg = "A album title is required.";
+    }
+}
+
+// Function to validate picture files
+function ValidatePictures($files, &$errorMsg) {
+    if (empty($files['name'][0])) {
+        $errorMsg = "Please select pictures to upload.";
+    }
+}
