@@ -11,11 +11,13 @@ foreach (glob("Common/Libraries/*.php") as $filename) {
 extract(setActiveLink('Friends'));
 
 // Check user status
-$isLogged = (isset($_SESSION['serializedUser']));
+$isLogged = (isset($_SESSION['userId']));
 [$Message, $Link] = checkLogStatus($isLogged);
 
 $currentUserId = $_SESSION['userId'] ?? null;
 $currentUserName = $_SESSION['userName'] ?? null;
+
+
 
 if (!$isLogged) {
     header("Location: LogIn.php");
@@ -115,7 +117,7 @@ include 'Common/PageElements/header.php';
             <!-- Friends Request List -->
             <div class="form-group">               
                 <?php 
-                    $friendRequest = getFriendsRequests($currentUser -> getUserId()); 
+                    $friendRequest = getFriendsRequests($currentUserId); 
                     echo <<<HTML
                                 <div class=row>
                                     <div class=col>

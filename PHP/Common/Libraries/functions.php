@@ -435,3 +435,41 @@ function addComment($pictureId, $authorId, $commentText) {
         // Optionally, handle the error more gracefully than just outputting it
     }
 }
+function getAlbumsList($currentUserId){
+
+   $dbConnection = parse_ini_file("./Common/Project.ini");
+    extract($dbConnection);
+    $pdo = new PDO($dsn, $user, $password);
+
+    $query = "SELECT a.Album_Id as albumId, a.Title as albumTitle, a.Accessibility_Code as accessibilityCode, COUNT(p.Picture_Id) AS pictureCount FROM album a " 
+            . "LEFT JOIN picture p ON a.Album_Id = p.Album_Id WHERE Owner_Id = :currentUserId "
+            . "GROUP BY a.Album_Id, a.Title;";
+    $prepQuery = $pdo->prepare($query);
+    
+    $prepQuery->execute(['currentUserId'=>$currentUserId]);
+
+    $albumArray = [];
+    $albumData = [];
+    
+    if ($prepQuery) {
+        if ($prepQuery->rowCount() == 0) {
+            $message = 'You don\'t have any Albums at the moment.';
+        } else {
+            $message = 'Your Albums';
+            foreach ($prepQuery as $row){
+                $albumData["albumId"]= $row["albumId"];
+                $albumData["albumTitle"]= $row["albumTitle"];
+                $albumData["accessibilityCode"]= $row["accessibilityCode"];
+                $albumData["pictureCount"]= $row["pictureCount"];
+                
+                $albumArray[] = $albumData;
+                $albumData = [];
+            }
+        }
+    } else {
+            $message = 'An error ocurred when trying to fetch your Albums.';
+    }
+   
+        return ['message' => $message, 'albumArray'=>$albumArray];
+
+}

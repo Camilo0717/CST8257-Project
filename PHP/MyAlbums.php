@@ -11,21 +11,16 @@ foreach (glob("Common/Libraries/*.php") as $filename) {
 extract(setActiveLink('Albums'));
 
 // Check user status
-$isLogged = (isset($_SESSION['serializedUser']));
+$isLogged = (isset($_SESSION['userId']));
 [$Message, $Link] = checkLogStatus($isLogged);
 
 $currentUserId = $_SESSION['userId'] ?? null;
 
-// Redirect if not logged in
-if (isset($_SESSION['serializedUser'])) {
-    $serializedUser = $_SESSION['serializedUser'];
-    $currentUser = unserialize($serializedUser);  
-} else {
+
+if (!$isLogged) {
     header("Location: LogIn.php");
     exit;
 }
-
-
 
 include 'Common/PageElements/header.php';
 ?>
@@ -34,7 +29,9 @@ include 'Common/PageElements/header.php';
     <div class="container mt-5">
         <h2>My Albums</h2>
         <?php 
-        $albumList = getAlbumsList($currentUser -> getUserId()); 
+        $albumList = getAlbumsList($currentUserId); 
+        
+       
         echo <<<HTML
              <div class=row>
                     <div class=col>
@@ -45,7 +42,6 @@ include 'Common/PageElements/header.php';
                     </div>
              </div>
         HTML;
-        
         if (count($albumList['albumArray']) > 0){
                     echo <<<TABLE
                         <table id="albumTable" class="table table-dark table-hover">
