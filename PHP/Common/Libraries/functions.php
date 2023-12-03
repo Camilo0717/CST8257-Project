@@ -263,7 +263,6 @@ function sendFriendRequest($userId, $friendId, &$errorMsg, &$confirmationMsg) {
         $errorMsg = 'The Id you entered is not registered with us.';
     }
 }
-
 function initSessionVar(&$variable) {
     if (isset($_SESSION[$variable])) {
         $variable = $_SESSION[$variable];
@@ -504,4 +503,33 @@ function getAlbumsList($currentUserId) {
     }
 
     return ['message' => $message, 'albumArray' => $albumArray];
+}
+
+function updateAlbum($albumId, $accessibilityCode){
+
+   $dbConnection = parse_ini_file("./Common/Project.ini");
+    extract($dbConnection);
+    $pdo = new PDO($dsn, $user, $password);
+
+    $query = "UPDATE album
+            SET  Accessibility_Code = :code
+            WHERE Album_Id = :id ;";
+    $prepQuery = $pdo->prepare($query);
+    
+    $prepQuery->execute(['code'=>$accessibilityCode, 'id'=>$albumId]);
+
+}
+
+
+function deleteAlbum($albumId){
+      $dbConnection = parse_ini_file("./Common/Project.ini");
+    extract($dbConnection);
+    $pdo = new PDO($dsn, $user, $password);
+
+    $query = "DELETE FROM album
+            WHERE Album_Id = :id ;";
+    $prepQuery = $pdo->prepare($query);
+    
+    $prepQuery->execute(['id'=>$albumId]);
+   
 }
