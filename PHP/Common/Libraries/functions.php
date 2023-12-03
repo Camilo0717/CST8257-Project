@@ -146,13 +146,9 @@ function getFriendsList($currentUserId) {
 function getFriendsRequests($currentUserId) {
     // Query to select requests
     $query = "SELECT u.Name friendName, u.UserId friendId FROM user u "
-            . "JOIN friendship f on f.Friend_RequesteeId = u.UserId "
-            . "WHERE f.Friend_RequesterId = :currentUserId "
-            . "AND f.Status = 'request' "
-            . "UNION (SELECT u.Name friendName, u.UserId friendId FROM user u "
             . "JOIN friendship f on f.Friend_RequesterId = u.UserId "
             . "WHERE f.Friend_RequesteeId = :currentUserId "
-            . "AND f.Status = 'request' );";
+            . "AND f.Status = 'request' ";          
 
     $prepQuery = executeQuery($query, ['currentUserId' => $currentUserId]);
 
@@ -241,6 +237,7 @@ function sendFriendRequest($userId, $friendId, &$errorMsg, &$confirmationMsg){
             // The users are friends
             $confirmationMsg = $friendName. ' (ID: '.$friendId.' ) and you are already friends!';
         } else {
+            // The users are not friends
             // Check if there is a pending invitation from the friendId
             $query3 = "SELECT * FROM friendship WHERE "
                     . "Friend_RequesterId =:friendId AND "
@@ -252,11 +249,23 @@ function sendFriendRequest($userId, $friendId, &$errorMsg, &$confirmationMsg){
                 // There was a pending request
                 $confirmationMsg = $friendName. ' (ID: '.$friendId.' ) had already sent you a friend request. You are now friends!';
             } else {
-                // No pending request -> send request
+                // Check if the current user already sent a requester to the other user                
+                $query4 = "SELECT * FROM friendship WHERE "
+                        . "Friend_RequesterId =:userId AND "
+                        . "Friend_RequesteeId =:friendId AND "
+                        . "Status = 'request'";
+                $prep4 = executeQuery($query4, ['userId'=>$userId, 'friendId'=>$friendId]);
+                $row4 = $prep4 ? $prep4->fetch(PDO::FETCH_ASSOC) : null;
+                if ($row4){
+                    // The user has already sent a friend request
+                    $confirmationMsg = 'A friend request was already sent to '.$friendName. ' (ID: '.$friendId.' )! Please wait until they accept their request.';
+                } else {
+                   // No pending request -> send request
                 $confirmationMsg = 'A friend request was sent to '.$friendName. ' (ID: '.$friendId.' )!';
-                $query4 = "INSERT INTO friendship VALUES "
+                $query5 = "INSERT INTO friendship VALUES "
                         . "(:userId, :friendId, 'request')";
-                executeQuery($query4,  ['userId'=>$userId, 'friendId'=>$friendId]);
+                executeQuery($query5,  ['userId'=>$userId, 'friendId'=>$friendId]); 
+                }              
             }
         }
     } else {
@@ -264,10 +273,6 @@ function sendFriendRequest($userId, $friendId, &$errorMsg, &$confirmationMsg){
         $errorMsg = 'The Id you entered is not registered with us.';
     }
 }  
-
-function sendFriendRequest($userId, $friendId) {
-    
-}
 
 function initSessionVar(&$variable) {
     if (isset($_SESSION[$variable])) {
