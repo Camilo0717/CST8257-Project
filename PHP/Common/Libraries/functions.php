@@ -518,7 +518,18 @@ function updateAlbum($albumId, $accessibilityCode){
     
     $prepQuery->execute(['code'=>$accessibilityCode, 'id'=>$albumId]);
 
-  
-  
+}
 
+
+function deleteAlbum($albumId){
+      $dbConnection = parse_ini_file("./Common/Project.ini");
+    extract($dbConnection);
+    $pdo = new PDO($dsn, $user, $password);
+
+    $query = "DELETE FROM album
+            WHERE Album_Id = :id ;";
+    $prepQuery = $pdo->prepare($query);
+    
+    $prepQuery->execute(['id'=>$albumId]);
+   
 }

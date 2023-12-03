@@ -94,6 +94,9 @@ include 'Common/PageElements/header.php';
                                             <option value="shared"  {$shared}>Available to owner and friends</option>
                                             <option value="private" {$private}>Available to owner only</option>
                                          </select>
+                                            
+                                            <a href="javascript:void(0)" id="">login</a>
+
                                     </td>
                                 </tr>   
                             ROW;
