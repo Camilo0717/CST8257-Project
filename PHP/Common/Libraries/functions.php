@@ -102,7 +102,6 @@ function renderAlbumDropdown($currentUserId, $selectedAlbumId = null) {
     return $dropdownHTML;
 }
 
-
 function getFriendsList($currentUserId) {
     // Query to select accepted friends
     $query = "SELECT u.Name friendName, u.UserId friendId, coalesce(temp.numShared, 0) sharedAlbums FROM user u "
@@ -217,13 +216,13 @@ function acceptRequest($userId, $currentUserId) {
     executeQuery($query2, ['currentUserId' => $currentUserId, 'userId' => $userId]);
 }
 
-function sendFriendRequest($userId, $friendId, &$errorMsg, &$confirmationMsg){
+function sendFriendRequest($userId, $friendId, &$errorMsg, &$confirmationMsg) {
     // check if friend Id exists
     $query1 = "SELECT UserId, Name FROM user WHERE "
             . "UserId =:friendId";
-    $prep1 = executeQuery($query1, ['friendId'=>$friendId]);
+    $prep1 = executeQuery($query1, ['friendId' => $friendId]);
     $row1 = $prep1 ? $prep1->fetch(PDO::FETCH_ASSOC) : null;
-    if ($row1){
+    if ($row1) {
         $friendName = $row1['Name'];
         // The user exists
         // Check if the user is already a friend
@@ -235,38 +234,34 @@ function sendFriendRequest($userId, $friendId, &$errorMsg, &$confirmationMsg){
                 . "Friend_RequesteeId =:userId AND "
                 . "Friend_RequesterId =:friendId AND "
                 . "Status = 'accepted')";
-        $prep2 = executeQuery($query2, ['userId'=>$userId, 'friendId'=>$friendId]);
+        $prep2 = executeQuery($query2, ['userId' => $userId, 'friendId' => $friendId]);
         $row2 = $prep2 ? $prep2->fetch(PDO::FETCH_ASSOC) : null;
-        if ($row2){
+        if ($row2) {
             // The users are friends
-            $confirmationMsg = $friendName. ' (ID: '.$friendId.' ) and you are already friends!';
+            $confirmationMsg = $friendName . ' (ID: ' . $friendId . ' ) and you are already friends!';
         } else {
             // Check if there is a pending invitation from the friendId
             $query3 = "SELECT * FROM friendship WHERE "
                     . "Friend_RequesterId =:friendId AND "
                     . "Friend_RequesteeId =:userId AND "
                     . "Status = 'request'";
-            $prep3 = executeQuery($query3, ['userId'=>$userId, 'friendId'=>$friendId]);
+            $prep3 = executeQuery($query3, ['userId' => $userId, 'friendId' => $friendId]);
             $row3 = $prep3 ? $prep3->fetch(PDO::FETCH_ASSOC) : null;
             if ($row3) {
                 // There was a pending request
-                $confirmationMsg = $friendName. ' (ID: '.$friendId.' ) had already sent you a friend request. You are now friends!';
+                $confirmationMsg = $friendName . ' (ID: ' . $friendId . ' ) had already sent you a friend request. You are now friends!';
             } else {
                 // No pending request -> send request
-                $confirmationMsg = 'A friend request was sent to '.$friendName. ' (ID: '.$friendId.' )!';
+                $confirmationMsg = 'A friend request was sent to ' . $friendName . ' (ID: ' . $friendId . ' )!';
                 $query4 = "INSERT INTO friendship VALUES "
                         . "(:userId, :friendId, 'request')";
-                executeQuery($query4,  ['userId'=>$userId, 'friendId'=>$friendId]);
+                executeQuery($query4, ['userId' => $userId, 'friendId' => $friendId]);
             }
         }
     } else {
         // User does not exists
         $errorMsg = 'The Id you entered is not registered with us.';
     }
-}  
-
-function sendFriendRequest($userId, $friendId) {
-    
 }
 
 function initSessionVar(&$variable) {
@@ -306,10 +301,12 @@ function insertNewAlbum($title, $description, $currentUserId, $accessibilityCode
     $stmt->bindParam(':ownerId', $currentUserId, PDO::PARAM_STR);
     $stmt->bindParam(':accessibilityCode', $accessibilityCode, PDO::PARAM_STR);
 
-     if (!$stmt->execute()) {
-        return "<div class='text-danger text-end'>Error: " . implode(", ", $stmt->errorInfo()); // This will show the error details
+    if (!$stmt->execute()) {
+        return "<div class='text-danger text-end'>Error: " . implode(", ", $stmt->errorInfo()) . "</div>";
     }
-     return "<div class='text-success text-start'>Album added successfully</div>";
+    // Set a session variable for the success message
+    $_SESSION['successMessage'] = "<div class='text-success text-start'>Album added successfully</div>";
+    return;
 }
 
 // Uploads pictures to local file 
@@ -470,41 +467,41 @@ function addComment($pictureId, $authorId, $commentText) {
         // Optionally, handle the error more gracefully than just outputting it
     }
 }
-function getAlbumsList($currentUserId){
 
-   $dbConnection = parse_ini_file("./Common/Project.ini");
+function getAlbumsList($currentUserId) {
+
+    $dbConnection = parse_ini_file("./Common/Project.ini");
     extract($dbConnection);
     $pdo = new PDO($dsn, $user, $password);
 
-    $query = "SELECT a.Album_Id as albumId, a.Title as albumTitle, a.Accessibility_Code as accessibilityCode, COUNT(p.Picture_Id) AS pictureCount FROM album a " 
+    $query = "SELECT a.Album_Id as albumId, a.Title as albumTitle, a.Accessibility_Code as accessibilityCode, COUNT(p.Picture_Id) AS pictureCount FROM album a "
             . "LEFT JOIN picture p ON a.Album_Id = p.Album_Id WHERE Owner_Id = :currentUserId "
             . "GROUP BY a.Album_Id, a.Title;";
     $prepQuery = $pdo->prepare($query);
-    
-    $prepQuery->execute(['currentUserId'=>$currentUserId]);
+
+    $prepQuery->execute(['currentUserId' => $currentUserId]);
 
     $albumArray = [];
     $albumData = [];
-    
+
     if ($prepQuery) {
         if ($prepQuery->rowCount() == 0) {
             $message = 'You don\'t have any Albums at the moment.';
         } else {
             $message = 'Your Albums';
-            foreach ($prepQuery as $row){
-                $albumData["albumId"]= $row["albumId"];
-                $albumData["albumTitle"]= $row["albumTitle"];
-                $albumData["accessibilityCode"]= $row["accessibilityCode"];
-                $albumData["pictureCount"]= $row["pictureCount"];
-                
+            foreach ($prepQuery as $row) {
+                $albumData["albumId"] = $row["albumId"];
+                $albumData["albumTitle"] = $row["albumTitle"];
+                $albumData["accessibilityCode"] = $row["accessibilityCode"];
+                $albumData["pictureCount"] = $row["pictureCount"];
+
                 $albumArray[] = $albumData;
                 $albumData = [];
             }
         }
     } else {
-            $message = 'An error ocurred when trying to fetch your Albums.';
+        $message = 'An error ocurred when trying to fetch your Albums.';
     }
-   
-        return ['message' => $message, 'albumArray'=>$albumArray];
 
+    return ['message' => $message, 'albumArray' => $albumArray];
 }
