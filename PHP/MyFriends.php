@@ -10,12 +10,13 @@ foreach (glob("Common/Libraries/*.php") as $filename) {
 // Set active Link
 extract(setActiveLink('Friends'));
 
-// Check user status
-$isLogged = (isset($_SESSION['serializedUser']));
+$isLogged = isset($_SESSION['userId']);
 [$Message, $Link] = checkLogStatus($isLogged);
 
 $currentUserId = $_SESSION['userId'] ?? null;
 $currentUserName = $_SESSION['userName'] ?? null;
+
+
 
 if (!$isLogged) {
     header("Location: LogIn.php");
@@ -60,101 +61,110 @@ if (isset($btnAccept)){
 include 'Common/PageElements/header.php';
 ?>
 
-<body>
-    <div class="container mt-5">
-        <h2>My Friends</h2>
 
-        <form method="post" id="friendListForm">
-            <!-- Friend List -->
-            <div class="form-group">               
-                <?php 
-                    $friendList = getFriendsList($currentUserId); 
-                    echo <<<HTML
-                                <div class=row>
-                                    <div class=col>
-                                        <p>{$friendList['message']}</p>
-                                    </div>
-                                    <div class=col>
-                                        <a href="AddFriend.php">Add Friends</a>
-                                    </div>
+<div class="container">
+    <h2>My Friends</h2>
+
+    <form method="post" id="friendListForm">
+        <!-- Friend List -->
+        <div class="form-group">               
+            <?php 
+                $friendList = getFriendsList($currentUserId); 
+                echo <<<HTML
+                            <div class="row">
+                                <div class="col-lg-5 col-sm-9">
+                                    <h4>{$friendList['message']}</h4>
                                 </div>
-                        HTML; 
-                    if (count($friendList['friendArray']) > 0){
-                        echo <<<TABLE
+                                <div class="col-lg-2 col-sm">
+                                    <a href="AddFriend.php">Add Friends</a>
+                                </div>
+                            </div>
+                    HTML; 
+                if (count($friendList['friendArray']) > 0){
+                    echo <<<TABLE
+                        <div class="col-lg-6 col-sm">
                             <table id="friendsTable" class="table table-dark table-hover">
                             <thead>
                                 <tr>
-                                    <th>Friend Name</th>
-                                    <th>Shared Albums</th>
-                                    <th>Defriend</th>
+                                    <th class="col-lg-2 col-sm">Friend Name</th>
+                                    <th class="col-lg-2 col-sm">Shared Albums</th>
+                                    <th class="text-center col-lg-1 col-sm">Unfriend</th>
                                 </tr>
                             </thead>
                             <tbody class="table-group-divider">
-                        TABLE;
-                        foreach ($friendList['friendArray'] as $row){
-                            $friendId = htmlspecialchars($row['friendId']);
-                            $friendName = htmlspecialchars($row['friendName']);
-                            $sharedAlbums = htmlspecialchars($row['sharedAlbums']);
-                            echo <<<ROW
-                                <tr>
-                                    <td>{$friendName}</td>
-                                    <td>{$sharedAlbums}</td>
-                                    <td>
-                                        <input type='checkbox' name='friendCbl[]' value='{$friendId}'>
-                                    </td>
-                                </tr>   
-                            ROW;
-                        }
-                        echo "</tbody></table>";                  
-                        echo "<button type='submit' name='btnUnfriend' class='btn btn-primary mt-2' onclick='return confirmDelete()'>Unfriend Selected</button>";
+                    TABLE;
+                    foreach ($friendList['friendArray'] as $row){
+                        $friendId = htmlspecialchars($row['friendId']);
+                        $friendName = htmlspecialchars($row['friendName']);
+                        $sharedAlbums = htmlspecialchars($row['sharedAlbums']);
+                        echo <<<ROW
+                            <tr>
+                                <td>{$friendName}</td>
+                                <td>{$sharedAlbums}</td>
+                                <td class="text-center">
+                                    <input type='checkbox' name='friendCbl[]' value='{$friendId}'>
+                                </td>
+                            </tr>   
+                        ROW;
                     }
-                ?>              
-            </div>
-        </form>
-        <form method="post" id="requestsForm">
-            <!-- Friends Request List -->
-            <div class="form-group">               
-                <?php 
-                    $friendRequest = getFriendsRequests($currentUser -> getUserId()); 
-                    echo <<<HTML
-                                <div class=row>
-                                    <div class=col>
-                                        <p>{$friendRequest['message']}</p>
-                                    </div>
-                                </div>
-                        HTML; 
-                    if (count($friendRequest['requestArray']) > 0){
-                        echo <<<TABLE
-                            <table id="requestTable" class="table table-dark table-hover">
-                            <thead>
-                                <tr>
-                                    <th>User Name</th>
-                                    <th>Accept or Deny</th>
-                                </tr>
-                            </thead>
-                            <tbody class="table-group-divider">
-                        TABLE;
-                        foreach ($friendRequest['requestArray'] as $row){
-                            $userId = htmlspecialchars($row['userId']);
-                            $userName = htmlspecialchars($row['userName']);
-                            echo <<<ROW
-                                <tr>
-                                    <td>{$userName}</td>
-                                    <td>
-                                        <input type='checkbox' name='requestCbl[]' value='{$userId}'>
-                                    </td>
-                                </tr>   
-                            ROW;
-                        }
-                        echo "</tbody></table>"; 
-                        echo "<button type='submit' name='btnAccept' class='btn btn-primary mt-2'>Accept Selected</button>";
-                        echo "<button type='submit' name='btnDeny' class='btn btn-primary mt-2' onclick='return confirmDeny()'>Deny Selected</button>";
+                    echo "</tbody></table></div>";                  
+                    echo "<button type='submit' name='btnUnfriend' class='btn btn-primary mt-1' onclick='return confirmDelete()'>Unfriend Selected</button>";
+                }
+            ?>              
+        </div>
+    </form>
+    <form method="post" id="requestsForm" class="mt-3">
+        <!-- Friends Request List -->
+        <div class="form-group">               
+            <?php 
+                $friendRequest = getFriendsRequests($currentUserId); 
+            echo <<<HTML
+                        <div class=row>
+                            <div class=col>
+                                <p>{$friendRequest['message']}</p>
+                            </div>
+                        </div>
+                    </div>
+                    HTML; 
+                if (count($friendRequest['requestArray']) > 0){
+                    echo <<<TABLE
+                    <div class="col-lg-4 col-sm">
+                        <table id="requestTable" class="table table-dark table-hover">
+                        <thead>
+                            <tr>
+                                <th class="col-lg-2 col-sm">User Name</th>
+                                <th class="text-center col-lg-2 col-sm">Accept or Deny</th>
+                            </tr>
+                        </thead>
+                        <tbody class="table-group-divider">
+                    TABLE;
+                    foreach ($friendRequest['requestArray'] as $row){
+                        $userId = htmlspecialchars($row['userId']);
+                        $userName = htmlspecialchars($row['userName']);
+                        echo <<<ROW
+                            <tr>
+                                <td>{$userName}</td>
+                                <td class="text-center">
+                                    <input type='checkbox' name='requestCbl[]' value='{$userId}'>
+                                </td>
+                            </tr>   
+                        ROW;
                     }
-                ?>              
-            </div>
-        </form>
-    </div>
-</body>
+                    echo "</tbody></table></div>";
+                    echo <<<BTN
+                        <div class="row">
+                            <div class="col">
+                                <button type='submit' name='btnAccept' class='btn btn-primary mt-2 me-2'>Accept Selected</button>
+                                <button type='submit' name='btnDeny' class='btn btn-primary mt-2' onclick='return confirmDeny()'>Deny Selected</button>
+                            </div>
+                        </div>
+                    BTN;
+                }
+            ?>              
+        </div>
+    </form>
+</div>
+
 <script>
     function confirmDelete(){
         let result = confirm("Are you sure you want to delete the selected friends?");

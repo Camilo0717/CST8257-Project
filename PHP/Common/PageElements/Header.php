@@ -14,7 +14,7 @@ $isLogged = isset($_SESSION['userId']);
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" href="./Common/CSS/Style.css">
 </head>
-<body style="padding-top: 150px; margin-bottom: 60px;">
+<body style="padding-top: 120px; margin-bottom: 50px;">
     <nav class="navbar navbar-expand-lg navbar-light fixed-top mb bg-dark" data-bs-theme='dark'>
         <div class="container-fluid">
             <a class="navbar-brand" href="http://www.algonquincollege.com">

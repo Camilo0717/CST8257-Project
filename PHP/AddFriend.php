@@ -32,8 +32,10 @@ if (isset($btnSubmit)){
     if (isset($friendId)){
         if ($friendId == '' || $friendId == null){
             $errorMsg = 'You did not submit any friend Id.';
+        } else if ($friendId == $currentUserId){
+            $errorMsg = 'You cannot send a friend request to yourself!';
         } else {
-            $result = sendFriendRequest($currentUserId, $friendId);
+            sendFriendRequest($currentUserId, $friendId, $errorMsg, $confirmationMsg);
         }
     }
 }
@@ -55,24 +57,24 @@ include("./Common/PageElements/header.php");
         </div>
     </div>
     <div class='row'>
-        <div class='col-6 col-sm'>
+        <div class='col-sm col-lg-8'>
             <hr style="margin: 0;">        
         </div>
     </div>       
     <form action="<?php echo $_SERVER["PHP_SELF"]; ?>" method="post">
-    <div class="row mb-3 mt-3 row-cols-auto align-items-center">
+    <div class="row mb-3 mt-3 align-items-center">
         <div class="col-sm-1 text-center">
             <label for="friendId" class="form-label" >ID: </label>
         </div>
-        <div class="col-sm-3">
+        <div class="col-sm-6 col-lg-4">
             <input type="text" name="friendId" id="friendId" class="form-control" value="<?php echo htmlspecialchars($friendId) ?>">
         </div>
-        <div class="col-sm-4 mt-sm-0 mt-3 ms-sm-0 ms-5">
+        <div class="col-sm-5 col-lg-4 mt-sm-0 mt-3 ms-sm-0 ms-5">
             <button type="submit" name="btnSubmit" class="btn btn-primary" id="submit">Send Friend Request</button>
         </div>       
     </div>
     <div class="row mt-1">
-        <div class="col-8">
+        <div class="col-sm col-lg-7">
         <?php 
             if ($errorMsg!=''){
                 echo <<<HTML
