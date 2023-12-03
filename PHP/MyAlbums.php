@@ -28,7 +28,13 @@ if (isset($btnSubmit)) {
         updateAlbum($albumId, $_POST[$albumId]);
     }
 }
-
+foreach ($albumList['albumArray'] as $row){
+    $albumId = htmlspecialchars($row['albumId']);
+if (isset($_POST["del_{$albumId}"])){
+  
+    deleteAlbum($albumId);
+}
+}
 
 
 
@@ -94,8 +100,10 @@ include 'Common/PageElements/header.php';
                                             <option value="shared"  {$shared}>Available to owner and friends</option>
                                             <option value="private" {$private}>Available to owner only</option>
                                          </select>
-                                            
-                                            <a href="javascript:void(0)" id="">login</a>
+                                         
+
+                                         <input type="submit" value="Delete" class="btn btn-primary" name="del_{$albumId}" onclick='return confirmDelete()'> 
+
 
                                     </td>
                                 </tr>   
@@ -111,7 +119,13 @@ include 'Common/PageElements/header.php';
         
     </div>
 </body>
-
+<script>
+    function confirmDelete(){
+        let result = confirm("Are you sure you want to delete the selected album?");
+        return result;  
+    }
+    
+</script>
 <?php
     include 'Common/PageElements/Footer.php';
 
