@@ -81,10 +81,10 @@ include 'Common/PageElements/header.php';
         <!-- Picture Area -->
         <div id="pictureArea" class="text-center my-4">
             <?php if ($selectedPictureDetails) : ?>
-            <div class="text-left">
-                <!-- Display Album Title -->
-                <h3 class="my-3">Album Title: <?php echo htmlspecialchars($currentAlbumDetails['Title']); ?></h3>
-                <h4 class="mt-3 mb-5">Picture Title: <?php echo htmlspecialchars($selectedPictureDetails['Title']); ?></h4>
+                <div class="text-left">
+                    <!-- Display Album Title -->
+                    <h3 class="my-3">Album Title: <?php echo htmlspecialchars($currentAlbumDetails['Title']); ?></h3>
+                    <h4 class="mt-3 mb-5">Picture Title: <?php echo htmlspecialchars($selectedPictureDetails['Title']); ?></h4>
                 </div>
                 <img src="image_serve.php?file=<?php echo urlencode($selectedPictureDetails['File_Name']); ?>" class="img-fluid rounded w-50" />
                 <?php if (!empty($selectedPictureDetails['Description'])) : ?>
@@ -93,6 +93,7 @@ include 'Common/PageElements/header.php';
                 <?php endif; ?>
             <?php endif; ?>
         </div>
+
 
         <!-- Thumbnail Bar -->
         <div class="thumbnail-bar d-flex justify-content-center flex-wrap my-5">
