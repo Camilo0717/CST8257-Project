@@ -72,7 +72,7 @@ function executeQuery($query, $arguments) {
 }
 
 function renderAlbumDropdown($currentUserId, $selectedAlbumId = null) {
-    $dropdownHTML = '<select class="form-control" id="uploadAlbum" name="uploadAlbum">';
+    $dropdownHTML = '<select class="form-control" id="albumSelection" name="albumSelection">';
 
     // Database Connection
     $dbConnection = parse_ini_file("./Common/Project.ini");
@@ -101,6 +101,7 @@ function renderAlbumDropdown($currentUserId, $selectedAlbumId = null) {
     $dropdownHTML .= '</select>';
     return $dropdownHTML;
 }
+
 
 function getFriendsList($currentUserId) {
     // Query to select accepted friends
@@ -287,7 +288,7 @@ function getAccessibilityOptions() {
 
 // Function to insert a new album
 function insertNewAlbum($title, $description, $currentUserId, $accessibilityCode) {
-    // Ensure Owner_Id is not longer than 16 characters
+    // Ensure Owner_Id is not longer than 16 characters <--- can probably remove
     $currentUserId = substr($currentUserId, 0, 16);
 
     $dbConnection = parse_ini_file("./Common/Project.ini");
@@ -302,10 +303,10 @@ function insertNewAlbum($title, $description, $currentUserId, $accessibilityCode
     $stmt->bindParam(':ownerId', $currentUserId, PDO::PARAM_STR);
     $stmt->bindParam(':accessibilityCode', $accessibilityCode, PDO::PARAM_STR);
 
-    if (!$stmt->execute()) {
+     if (!$stmt->execute()) {
         return "<div class='text-danger text-end'>Error: " . implode(", ", $stmt->errorInfo()); // This will show the error details
     }
-     return "<div class='text-success text-center'>Album added successfully</div>";
+     return "<div class='text-success text-start'>Album added successfully</div>"; // Shows success message
 }
 
 // Uploads pictures to local file 
@@ -465,4 +466,42 @@ function addComment($pictureId, $authorId, $commentText) {
         echo "Error: " . $e->getMessage();
         // Optionally, handle the error more gracefully than just outputting it
     }
+}
+function getAlbumsList($currentUserId){
+
+   $dbConnection = parse_ini_file("./Common/Project.ini");
+    extract($dbConnection);
+    $pdo = new PDO($dsn, $user, $password);
+
+    $query = "SELECT a.Album_Id as albumId, a.Title as albumTitle, a.Accessibility_Code as accessibilityCode, COUNT(p.Picture_Id) AS pictureCount FROM album a " 
+            . "LEFT JOIN picture p ON a.Album_Id = p.Album_Id WHERE Owner_Id = :currentUserId "
+            . "GROUP BY a.Album_Id, a.Title;";
+    $prepQuery = $pdo->prepare($query);
+    
+    $prepQuery->execute(['currentUserId'=>$currentUserId]);
+
+    $albumArray = [];
+    $albumData = [];
+    
+    if ($prepQuery) {
+        if ($prepQuery->rowCount() == 0) {
+            $message = 'You don\'t have any Albums at the moment.';
+        } else {
+            $message = 'Your Albums';
+            foreach ($prepQuery as $row){
+                $albumData["albumId"]= $row["albumId"];
+                $albumData["albumTitle"]= $row["albumTitle"];
+                $albumData["accessibilityCode"]= $row["accessibilityCode"];
+                $albumData["pictureCount"]= $row["pictureCount"];
+                
+                $albumArray[] = $albumData;
+                $albumData = [];
+            }
+        }
+    } else {
+            $message = 'An error ocurred when trying to fetch your Albums.';
+    }
+   
+        return ['message' => $message, 'albumArray'=>$albumArray];
+
 }

@@ -16,6 +16,8 @@ $isLogged = isset($_SESSION['userId']);
 $currentUserId = $_SESSION['userId'] ?? null;
 $currentUserName = $_SESSION['userName'] ?? null;
 
+
+
 if (!$isLogged) {
     header("Location: LogIn.php");
     exit;
@@ -116,12 +118,13 @@ include 'Common/PageElements/header.php';
         <div class="form-group">               
             <?php 
                 $friendRequest = getFriendsRequests($currentUserId); 
-                echo <<<HTML
-                            <div class="row">
-                                <div class="col">
-                                    <h4 class="mb-3">{$friendRequest['message']}</h4>
-                                </div>
+            echo <<<HTML
+                        <div class=row>
+                            <div class=col>
+                                <p>{$friendRequest['message']}</p>
                             </div>
+                        </div>
+                    </div>
                     HTML; 
                 if (count($friendRequest['requestArray']) > 0){
                     echo <<<TABLE
