@@ -21,6 +21,16 @@ if (!$isLogged) {
     header("Location: LogIn.php");
     exit;
 }
+ $albumList = getAlbumsList($currentUserId); 
+if (isset($btnSubmit)) {
+    foreach ($albumList['albumArray'] as $row){
+        $albumId = htmlspecialchars($row['albumId']);
+        updateAlbum($albumId, $_POST[$albumId]);
+    }
+}
+
+
+
 
 include 'Common/PageElements/header.php';
 ?>
@@ -28,8 +38,9 @@ include 'Common/PageElements/header.php';
 <body>
     <div class="container mt-5">
         <h2>My Albums</h2>
+        <form  action="MyALbums.php" method="post"  >
         <?php 
-        $albumList = getAlbumsList($currentUserId); 
+       
         
        
         echo <<<HTML
@@ -57,21 +68,43 @@ include 'Common/PageElements/header.php';
                         
                         
              foreach ($albumList['albumArray'] as $row){
+                            $albumId = htmlspecialchars($row['albumId']);
                             $albumTitle = htmlspecialchars($row['albumTitle']);
                             $pictureCount = htmlspecialchars($row['pictureCount']);
                             $accessibilityCode = htmlspecialchars($row['accessibilityCode']);
+                            $shared = '';
+                            $private = '';
+                            if (isset($btnSubmit)){
+                                $accessibilityCode = $_POST[$albumId];
+                            }
+                            
+                            if ($accessibilityCode == "shared"){
+                                $shared = "selected";
+                            }else{
+                                $private = "selected";
+                            }
+                            
+                            
                             echo <<<ROW
                                 <tr>
                                     <td>{$albumTitle}</td>
                                     <td>{$pictureCount}</td>
                                     <td>
-                                        {$accessibilityCode}
+                                        <select class="form-control" id="albumSelection" name="{$albumId}">
+                                            <option value="shared"  {$shared}>Available to owner and friends</option>
+                                            <option value="private" {$private}>Available to owner only</option>
+                                         </select>
                                     </td>
                                 </tr>   
                             ROW;
             }
+         echo <<<HTML
+            </table>
+             <input name="btnSubmit" type="submit" value="Save Changes" class="btn btn-primary" name="btnRegister" onclick=''> 
+        HTML;
         }
         ?>
+        </form>
         
     </div>
 </body>
