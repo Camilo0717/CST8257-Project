@@ -217,21 +217,8 @@ function acceptRequest($userId, $currentUserId) {
     executeQuery($query2, ['currentUserId' => $currentUserId, 'userId' => $userId]);
 }
 
-function sendFriendRequest($userId, $friendId){
-    // check if friend Id exists
-    $query1 = "SELECT Name FROM user WHERE "
-            . "UserId =:userId";
-    $prep1 = executeQuery($query1, ['userId'=>$userId]);
-    if ($prep1){
-        if ($prep1->rowCount()==0){
-            // The user doesn't exist
-            return "The user id you entered does not exist.";
-        }
-    }
-    // check if the users are already friends or
-    // if there is a pending invitation
+function sendFriendRequest($userId, $friendId) {
     
-    // Send friendship request
 }
 
 function initSessionVar(&$variable) {
@@ -256,7 +243,7 @@ function getAccessibilityOptions() {
 
 // Function to insert a new album
 function insertNewAlbum($title, $description, $currentUserId, $accessibilityCode) {
-    // Ensure Owner_Id is not longer than 16 characters <--- can probably remove
+    // Ensure Owner_Id is not longer than 16 characters
     $currentUserId = substr($currentUserId, 0, 16);
 
     $dbConnection = parse_ini_file("./Common/Project.ini");
@@ -274,7 +261,7 @@ function insertNewAlbum($title, $description, $currentUserId, $accessibilityCode
      if (!$stmt->execute()) {
         return "<div class='text-danger text-end'>Error: " . implode(", ", $stmt->errorInfo()); // This will show the error details
     }
-     return "<div class='text-success text-start'>Album added successfully</div>"; // Shows success message
+     return "<div class='text-success text-start'>Album added successfully</div>";
 }
 
 // Uploads pictures to local file 
