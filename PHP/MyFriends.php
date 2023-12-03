@@ -63,7 +63,7 @@ include 'Common/PageElements/header.php';
 
 
 <div class="container">
-    <h2>My Friends</h2>
+    <h2 class="row justify-content-center">My Friends</h2>
 
     <form method="post" id="friendListForm">
         <!-- Friend List -->
@@ -71,8 +71,8 @@ include 'Common/PageElements/header.php';
             <?php 
                 $friendList = getFriendsList($currentUserId); 
                 echo <<<HTML
-                            <div class="row">
-                                <div class="col-lg-5 col-sm-9">
+                            <div class="row justify-content-center">
+                                <div class="col-lg-4 col-sm-9">
                                     <h4>{$friendList['message']}</h4>
                                 </div>
                                 <div class="col-lg-2 col-sm">
@@ -81,6 +81,7 @@ include 'Common/PageElements/header.php';
                             </div>
                     HTML; 
                 if (count($friendList['friendArray']) > 0){
+                    echo '<div class="row justify-content-center">';
                     echo <<<TABLE
                         <div class="col-lg-6 col-sm">
                             <table id="friendsTable" class="table table-dark table-hover">
@@ -107,8 +108,9 @@ include 'Common/PageElements/header.php';
                             </tr>   
                         ROW;
                     }
-                    echo "</tbody></table></div>";                  
-                    echo "<button type='submit' name='btnUnfriend' class='btn btn-primary mt-1' onclick='return confirmDelete()'>Unfriend Selected</button>";
+                    echo "</tbody></table></div></div>";                  
+                    echo "<div class='row offset-lg-3'><button type='submit' name='btnUnfriend' class='col-auto btn btn-primary mt-1 ms-lg-1 ms-sm-2' onclick='return confirmDelete()'>"
+                    . "Unfriend Selected</button></div>";
                 }
             ?>              
         </div>
@@ -119,16 +121,16 @@ include 'Common/PageElements/header.php';
             <?php 
                 $friendRequest = getFriendsRequests($currentUserId); 
             echo <<<HTML
-                        <div class=row>
-                            <div class=col>
-                                <p>{$friendRequest['message']}</p>
-                            </div>
+                    <div class="row justify-content-center">
+                        <div class="col-lg-6">
+                            <p>{$friendRequest['message']}</p>
                         </div>
-                    </div>
+                    </div>                   
                     HTML; 
                 if (count($friendRequest['requestArray']) > 0){
+                    echo '<div class="row">';
                     echo <<<TABLE
-                    <div class="col-lg-4 col-sm">
+                    <div class="col-lg-4 col-sm offset-lg-3">
                         <table id="requestTable" class="table table-dark table-hover">
                         <thead>
                             <tr>
@@ -150,10 +152,10 @@ include 'Common/PageElements/header.php';
                             </tr>   
                         ROW;
                     }
-                    echo "</tbody></table></div>";
+                    echo "</tbody></table></div></div>";
                     echo <<<BTN
-                        <div class="row">
-                            <div class="col">
+                        <div class="row justify-content-center">
+                            <div class="col offset-lg-3">
                                 <button type='submit' name='btnAccept' class='btn btn-primary mt-2 me-2'>Accept Selected</button>
                                 <button type='submit' name='btnDeny' class='btn btn-primary mt-2' onclick='return confirmDeny()'>Deny Selected</button>
                             </div>

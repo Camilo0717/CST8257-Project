@@ -78,8 +78,8 @@ include("./Common/PageElements/header.php");
         <?php 
             if ($errorMsg!=''){
                 echo <<<HTML
-                    <div class="alert alert-danger" role="alert">
-                        {$errorMsg}
+                    <div class='col-8 offset-2'>
+                        <span style='color: red;'>$errorMsg</span>
                     </div>
                 HTML;
             }
