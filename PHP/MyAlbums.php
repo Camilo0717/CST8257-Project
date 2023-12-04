@@ -62,6 +62,7 @@ include 'Common/PageElements/header.php';
         HTML;
         if (count($albumList['albumArray']) > 0){
                     echo <<<TABLE
+            <div class="col-lg-6 col-sm">
                         <table id="albumTable" class="table table-dark table-hover">
                             <thead>
                                 <tr>
@@ -101,6 +102,7 @@ include 'Common/PageElements/header.php';
                                     </td>
                                     <td>{$pictureCount}</td>
                                     <td>
+                                    <div class="albumControls">
                                         <select class="form-control" id="albumSelection" name="{$albumId}">
                                             <option value="shared"  {$shared}>Available to owner and friends</option>
                                             <option value="private" {$private}>Available to owner only</option>
@@ -108,7 +110,7 @@ include 'Common/PageElements/header.php';
                                          
 
                                          <input type="submit" value="Delete" class="btn btn-primary" name="del_{$albumId}" onclick='return confirmDelete()'> 
-
+                                    </div>
 
                                     </td>
                                 </tr>   
@@ -116,6 +118,7 @@ include 'Common/PageElements/header.php';
             }
          echo <<<HTML
             </table>
+            </div>
              <input name="btnSubmit" type="submit" value="Save Changes" class="btn btn-primary" name="btnRegister"> 
         HTML;
         }
