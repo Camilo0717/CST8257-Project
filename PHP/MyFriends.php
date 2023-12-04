@@ -101,7 +101,7 @@ include 'Common/PageElements/header.php';
                         $sharedAlbums = htmlspecialchars($row['sharedAlbums']);
                         echo <<<ROW
                             <tr>
-                                <td><a href="MyFriendsPictures.php?friendId={$friendId}">{$friendName}</td>
+                                <td><a href="MyFriendsPictures.php?friendId={$friendId}&friendName={$friendName}">{$friendName}</td>
                                 <td>{$sharedAlbums}</td>
                                 <td class="text-center">
                                     <input type='checkbox' name='friendCbl[]' value='{$friendId}'>

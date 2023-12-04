@@ -19,6 +19,7 @@ if (!$isLogged) {
 // Get the current user's ID from the session
 $currentUserId = $_SESSION['userId'];
 $friendId = $_GET['friendId'];
+$friendName= $_GET['friendName'];
 // fetch the selected album ID and pictureID
 $selectedAlbumId = $_GET['albumSelection'] ?? null;
 $selectedPictureId = $_GET['selectedPicture'] ?? null;
@@ -56,7 +57,7 @@ include 'Common/PageElements/header.php';
 
 <body>
     <div class="container my-1">
-        <h2 class="mb-4"><?php echo $friendId;?>'s Pictures</h2>
+        <h2 class="mb-4"><?php echo $friendName;?>'s Pictures</h2>
         <?php
         if ($selectedAlbumId) {
             $currentAlbumDetails = getAlbumDetails($selectedAlbumId);
