@@ -19,6 +19,7 @@ $currentUserName = $_SESSION['userName'] ?? null;
 
 
 if (!$isLogged) {
+    $_SESSION['Location'] = 'MyFriends.php';
     header("Location: LogIn.php");
     exit;
 }

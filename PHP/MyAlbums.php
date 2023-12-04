@@ -18,6 +18,7 @@ $currentUserId = $_SESSION['userId'] ?? null;
 
 
 if (!$isLogged) {
+    $_SESSION['Location'] = 'MyAlbums.php';
     header("Location: LogIn.php");
     exit;
 }

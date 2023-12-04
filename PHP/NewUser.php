@@ -85,14 +85,17 @@
                 
                 executeQuery($insertStmt, ['UserId'=>$userId, 'Name'=>$userName, 'Phone'=>$userPhone, 'Password'=>$hashedPswd]);
                 
+                // Update session
                 $_SESSION['userId'] = $userId;
                 $_SESSION['userName'] = $userName;
                 
-                // Redirect User to *.php
-                header("Location: Index.php");
-                exit();
-
-                // Redirect user to previous page
+                // Redirect to the home page or previous location
+                if (isset($_SESSION['Location'])){
+                    header("Location: {$_SESSION['Location']}");
+                    exit();
+                } else {header("Location: Index.php");
+                        exit();
+                }
             }
         }
     }      

@@ -13,6 +13,7 @@ $isLogged = isset($_SESSION['userId']);
 
 // Redirect if not logged in
 if (!$isLogged) {
+    $_SESSION['Location'] = 'AddAlbum.php';
     header("Location: LogIn.php");
     exit;
 }

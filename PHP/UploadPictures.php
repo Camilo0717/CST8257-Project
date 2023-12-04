@@ -15,6 +15,7 @@ include 'Common/PageElements/header.php';
 
 // Redirect if not logged in
 if (!$isLogged) {
+    $_SESSION['Location'] = 'UploadPictures.php';
     header("Location: LogIn.php");
     exit;
 }

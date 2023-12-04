@@ -2,6 +2,10 @@
 session_start();
 extract($_POST);
 
+ if (isset($_SESSION['Location'])){echo "Go to {$_SESSION['Location']}";} else {
+     echo "Go to index";
+ }
+
 // include libraries
 foreach (glob("Common/Libraries/*.php") as $filename) {
     include $filename;
@@ -22,33 +26,20 @@ $errorArray = [$userIdErrorMsg = '', $pswdErrorMsg = '',
     $dataErrorMsg = ''];
 
 // Initialize user data
-$userData = [$userId = '', $pswd = ''];
+$userData = [$inputId = '', $pswd = ''];
 
 // Extract user data from Session
 foreach ($userData as $variable) {
     initSessionVar($variable);
 }
 
-// On btnClear click
-//    if (isset($btnClear)){
-//        // Clear all fields and error messages
-//        $studentId = ''; $pswd = '';
-//
-//        $studentIdErrorMsg = '';$pswdErrorMsg = ''; $dataErrorMsg = '';
-//        
-//        // Clear relevant session variables
-//        $_SESSION["studentId"] = $studentId;
-//        $_SESSION["pswd"] = $pswd;
-//
-//    }
-// On btnNext click
 if (isset($btnSubmit)) {
     // Retrieve input data
     extract($_POST);
 
     // Validate data
-    if ($userId == '') {
-        $userIdErrorMsg = 'Student ID is required.';
+    if ($inputId == '') {
+        $userIdErrorMsg = 'User ID is required.';
     }
 
     if ($pswd == '') {
@@ -58,7 +49,7 @@ if (isset($btnSubmit)) {
     $errorArray = [$userIdErrorMsg, $pswdErrorMsg];
 
     // Save user inputs
-    $_SESSION["userId"] = $userId;
+    $_SESSION["inputId"] = $inputId;
     $_SESSION["pswd"] = $pswd;
 
     // If the form is valid
@@ -66,16 +57,21 @@ if (isset($btnSubmit)) {
         // Check if the user information is in the DB
         $hashedPswd = hash("sha256", $pswd);
         $sqlStatement = "SELECT * FROM user WHERE UserId = :userId AND Password = :hashedPswd";
-        $prepStatement = executeQuery($sqlStatement, ['userId' => $userId, 'hashedPswd' => $hashedPswd]);
-
-        if ($prepStatement && $row = $prepStatement->fetch(PDO::FETCH_ASSOC)) {
+        $prepStatement = executeQuery($sqlStatement, ['userId' => $inputId, 'hashedPswd' => $hashedPswd]);
+        $row = $prepStatement ? $prepStatement->fetch(PDO::FETCH_ASSOC): null;
+        
+        if ($row) {
             // User exists, save userId and name to the session
             $_SESSION['userId'] = $row['UserId'];
             $_SESSION['userName'] = $row['Name'];
 
-            // Redirect to the home page
-            header("Location: Index.php");
-            exit();
+            // Redirect to the home page or previous location
+            if (isset($_SESSION['Location'])){
+                header("Location: {$_SESSION['Location']}");
+                exit();
+            } else {header("Location: Index.php");
+                    exit();
+            }                      
         } else {
             // User does not exist or query failed
             $dataErrorMsg = 'Incorrect UserId and/or Password.';
@@ -101,8 +97,8 @@ echo "<div class='col-6'><span style='color: red;'>$dataErrorMsg</span></div>";
         </div>
 
         <div class="row mb-3 mt-3 justify-content-center align-items-center">
-            <div class="col-3 text-start"><label for="userId" class="form-label">User ID: </label></div>
-            <div class="col-sm-5"><input type="text" name="userId" id="userId" class="form-control" value="<?php echo htmlspecialchars($userId) ?>"></div>
+            <div class="col-3 text-start"><label for="inputId" class="form-label">User ID: </label></div>
+            <div class="col-sm-5"><input type="text" name="inputId" id="inputId" class="form-control" value="<?php echo htmlspecialchars($inputId) ?>"></div>
 <?php
 echo "<div class='col-4'><span style='color: red;'>$userIdErrorMsg</span></div>";
 ?>

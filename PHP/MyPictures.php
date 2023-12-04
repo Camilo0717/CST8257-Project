@@ -11,6 +11,7 @@ $isLogged = isset($_SESSION['userId']);
 
 // Redirect if not logged in
 if (!$isLogged) {
+    $_SESSION['Location'] = 'MyPictures.php';
     header("Location: LogIn.php");
     exit;
 }
