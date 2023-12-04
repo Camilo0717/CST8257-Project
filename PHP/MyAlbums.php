@@ -93,7 +93,11 @@ include 'Common/PageElements/header.php';
                             
                             echo <<<ROW
                                 <tr>
-                                    <td>{$albumTitle}</td>
+                                    <td>
+
+                                        <a href="MyPictures.php?albumSelection={$albumId}"> {$albumTitle}</a>
+   
+                                    </td>
                                     <td>{$pictureCount}</td>
                                     <td>
                                         <select class="form-control" id="albumSelection" name="{$albumId}">
@@ -111,7 +115,7 @@ include 'Common/PageElements/header.php';
             }
          echo <<<HTML
             </table>
-             <input name="btnSubmit" type="submit" value="Save Changes" class="btn btn-primary" name="btnRegister" onclick=''> 
+             <input name="btnSubmit" type="submit" value="Save Changes" class="btn btn-primary" name="btnRegister"> 
         HTML;
         }
         ?>
@@ -124,7 +128,13 @@ include 'Common/PageElements/header.php';
         let result = confirm("Are you sure you want to delete the selected album?");
         return result;  
     }
-    
+        function submitForm( id) {
+            let form = document.querySelector("form");
+            console.log(form);
+            console.log(id);
+            form.submit();
+        }
+   
 </script>
 <?php
     include 'Common/PageElements/Footer.php';
