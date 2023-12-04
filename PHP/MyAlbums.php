@@ -42,33 +42,32 @@ if (isset($_POST["del_{$albumId}"])){
 include 'Common/PageElements/header.php';
 ?>
 
-<body>
+
     <div class="container mt-5">
-        <h2>My Albums</h2>
-        <form  action="MyALbums.php" method="post"  >
+        <h2 class="row justify-content-center">My Albums</h2>
+        <form  action="MyALbums.php" method="post" class="form-group">
         <?php 
-       
-        
-       
+
         echo <<<HTML
-             <div class=row>
-                    <div class=col>
+             <div class="row justify-content-center">
+                    <div class="col-lg-4 col-sm-9">
                         <p>{$albumList['message']}</p>
                     </div>
-                    <div class=col>
+                    <div class="col-lg-4 col-sm">
                         <a href="AddAlbum.php">Add Album</a>
                     </div>
              </div>
-        HTML;
+            HTML;
         if (count($albumList['albumArray']) > 0){
+            echo '<div class="row justify-content-center">';
                     echo <<<TABLE
-            <div class="col-lg-6 col-sm">
+                    <div class="col-lg-8 col-sm">
                         <table id="albumTable" class="table table-dark table-hover">
                             <thead>
                                 <tr>
-                                    <th>Title</th>
-                                    <th>Number Of Pictures</th>
-                                    <th>Accessibility</th>
+                                    <th class="col-lg-2 col-sm">Title</th>
+                                    <th class="col-lg-2 col-sm">Number Of Pictures</th>
+                                    <th class="text-center col-lg-4 col-sm">Accessibility</th>
                                 </tr>
                             </thead>
                             <tbody class="table-group-divider">
@@ -101,7 +100,7 @@ include 'Common/PageElements/header.php';
    
                                     </td>
                                     <td>{$pictureCount}</td>
-                                    <td>
+                                    <td class="text-center">
                                     <div class="albumControls">
                                         <select class="form-control" id="albumSelection" name="{$albumId}">
                                             <option value="shared"  {$shared}>Available to owner and friends</option>
@@ -117,16 +116,18 @@ include 'Common/PageElements/header.php';
                             ROW;
             }
          echo <<<HTML
-            </table>
+            </tbody></table></div>
             </div>
-             <input name="btnSubmit" type="submit" value="Save Changes" class="btn btn-primary" name="btnRegister"> 
+            <div class="row offset-lg-2">
+            <input name="btnSubmit" type="submit" value="Save Changes" class="btn btn-primary col-auto" name="btnRegister"> 
+            </div>
         HTML;
         }
         ?>
         </form>
         
     </div>
-</body>
+
 <script>
     function confirmDelete(){
         let result = confirm("Are you sure you want to delete the selected album?");

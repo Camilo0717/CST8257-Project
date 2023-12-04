@@ -2,10 +2,6 @@
 session_start();
 extract($_POST);
 
- if (isset($_SESSION['Location'])){echo "Go to {$_SESSION['Location']}";} else {
-     echo "Go to index";
- }
-
 // include libraries
 foreach (glob("Common/Libraries/*.php") as $filename) {
     include $filename;
