@@ -5,7 +5,7 @@ require_once("Common/Libraries/functions.php");
 require_once("Common/Libraries/validation.php");
 
 // Set active Link
-extract(setActiveLink('UploadPictures'));
+extract(setActiveLink('Upload'));
 
 // Check user status
 $isLogged = isset($_SESSION['userId']);

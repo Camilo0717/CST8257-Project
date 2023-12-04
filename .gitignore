@@ -1,3 +1,8 @@
 /PHP/nbproject/private/
 /PHP/Common/Project.ini
 *.ini
+*.jpeg
+*.jpg
+*.png
+*.gif
+*.webp
