@@ -18,7 +18,7 @@ if (!$isLogged) {
 
 // Get the current user's ID from the session
 $currentUserId = $_SESSION['userId'];
-
+$friendId = $_GET['friendId'];
 // fetch the selected album ID and pictureID
 $selectedAlbumId = $_GET['albumSelection'] ?? null;
 $selectedPictureId = $_GET['selectedPicture'] ?? null;
@@ -56,7 +56,7 @@ include 'Common/PageElements/header.php';
 
 <body>
     <div class="container my-1">
-        <h2 class="mb-4">Manage My Pictures</h2>
+        <h2 class="mb-4"><?php echo $friendId;?>'s Pictures</h2>
         <?php
         if ($selectedAlbumId) {
             $currentAlbumDetails = getAlbumDetails($selectedAlbumId);
@@ -67,7 +67,7 @@ include 'Common/PageElements/header.php';
         <form method="get" id="albumForm" action="MyPictures.php" class="mb-4">
             <div class="form-group">
                 <label for="albumSelection">Select an Album:</label>
-                <?php echo renderAlbumDropdown($currentUserId, $selectedAlbumId); ?>
+                <?php echo renderAlbumDropdown($friendId, $selectedAlbumId, true); ?>
                 <button type="submit" class="btn btn-primary mt-2">Show Pictures</button>
             </div>
         </form>

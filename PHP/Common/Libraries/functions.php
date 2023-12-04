@@ -71,7 +71,7 @@ function executeQuery($query, $arguments) {
     return $preparedQuery;
 }
 
-function renderAlbumDropdown($currentUserId, $selectedAlbumId = null) {
+function renderAlbumDropdown($currentUserId, $selectedAlbumId = null, $friend = null) {
     $dropdownHTML = '<select class="form-control" id="albumSelection" name="albumSelection">';
 
     // Database Connection
@@ -79,7 +79,14 @@ function renderAlbumDropdown($currentUserId, $selectedAlbumId = null) {
     extract($dbConnection);
     $pdo = new PDO($dsn, $user, $password);
 
-    $query = "SELECT * FROM album WHERE Owner_Id = :currentUserId";
+    if ($friend){
+        $query = "SELECT * FROM album WHERE Owner_Id = :currentUserId AND Accessibility_Code = 'shared'";
+    }else{
+        $query = "SELECT * FROM album WHERE Owner_Id = :currentUserId";
+    }
+        
+    
+    
     $stmt = $pdo->prepare($query);
 
     // Bind parameter
